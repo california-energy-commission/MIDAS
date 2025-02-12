@@ -23,10 +23,10 @@ Pursuant to the California Load Management Standards, the state’s largest util
 The primary lookup identification (ID) for the MIDAS database is a compound key comprised of six individual fields that make up a standardized rate identification number (RIN) as shown in Figure 1. RINs are assigned at the time rate information is first uploaded by the LSE through the MIDAS API. When an LSE uploads to an existing RIN, the correct RIN must be used at the time of upload. Figure 1 illustrates the six identifiers that comprise a RIN: Country, State, Distribution, Energy, Rate, and Location. The location portion of the RIN may consist of 1 to 10 characters depending on the specified location’s requirements.
 
 Figure 1. Rate Identification Number Structure<br>
-![Rate Identifican Number Specification](img/RIN-structure.png)<br>
+![Rate Identification Number Specification](img/RIN-structure.png)<br>
 Source: California Energy Commission
 
-Rate Indentification Numbers do not change over time. The prices and values may change, but an electricity customer's RIN should not change unless their rate components or rate modifiers change or the utility or customer changes their rate tarrif.
+Rate Identification Numbers do not change over time. The prices and values may change, but an electricity customer's RIN should not change unless their rate components or rate modifiers change or the utility or customer changes their rate tarrif.
 
 ## Rate Information
 
@@ -267,7 +267,7 @@ Rate Information will include the following fields:<br>
 | AltRateName1 | An alternate name of the rate as provided by uploading party | "TEST-TOU" | string |
 | AltRateName2 | Another alternate name of the rate as provided by uploading party | "TESTING TOU" | string |
 | SignupCloseDate | The last day to sign up for the rate as provided by uploading party | "2025-12-31" | string |
-| ValueInformation | Collection of ValueData as descipbed in the next table |  | Collection of ValueData |
+| ValueInformation | Collection of ValueData as described in the next table |  | Collection of ValueData |
 
 ValueData collection will each include the following fields:<br>
 | Name    | Description                                   | Example | Type   |
