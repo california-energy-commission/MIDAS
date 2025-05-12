@@ -134,7 +134,8 @@ org_encodedBytes = base64.b64encode(organization.encode("utf-8"))
 organization64 = str(org_encodedBytes, "utf-8")
 
 # Put together the dict for the JSON payload
-registration_info = {"organization":organization64, "username":username64, "password":password64, "emailaddress":emailaddress64, "fullname":fullname64}
+registration_info = {"organization":organization64, "username":username64, "password":password64,
+                    "emailaddress":emailaddress64, "fullname":fullname64}
 
 url = 'https://midasapi.energy.ca.gov/api/registration'
 headers =  {"Content-Type":"application/json"}
