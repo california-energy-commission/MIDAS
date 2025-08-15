@@ -66,6 +66,8 @@ The MIDAS API is comprised of six endpoints:
 
 The following are instructions for registering a MIDAS account and a description of the basic functions that can be used to upload and download MIDAS data. The examples use the Python programming language. Links to GitHub repositories with examples in Python and other programming languages are in [Example Code](#example-code) below.
 
+Date, time, and datetime values in the MIDAS database use the [ISO 8601 standard](https://en.wikipedia.org/wiki/ISO_8601).
+
 ## Register
 
 There are two types of accounts that can be used to interface with MIDAS: LSE accounts and user accounts. For security and accuracy of the system, only CEC-verified LSE accounts can upload (POST) data. Those wishing to retrieve data stored in the MIDAS database must register a user account and use that account to retrieve an access token to authenticate GET and POST requests.
