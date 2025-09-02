@@ -477,25 +477,18 @@ _**Only CEC approved accounts may upload data to MIDAS.**_
 See [Appendix A](appendix-a.md) for in-depth details on uploading rates to MIDAS.
 
 
-# Example Codes
+# Example Code
 
-These are several sets of example code and an R package for working with the MIDAS API.
+Example code and an R package for working with the MIDAS API.
 
 ## Python
 
-Repository of Python language example code for working with MIDAS: 
-<https://github.com/morganmshep/MIDAS-Python-Repository>
+Python language example code for working with MIDAS is available throughout the MIDAS documentation.
 
 ## R
 
-Repository of R language example code for working with MIDAS: <https://github.com/morganmshep/MIDAS-R-Repository>
-
 Repository for installable R language package for working with MIDAS: <https://github.com/stefwayland/cecmidas>
-
-## C-Sharp (C#)
-
-Repository of C# language example code for working with MIDAS: 
-<https://github.com/morganmshep/MIDAS-CSharp-Repository>
+ *This repository is not maintained or supported by the CEC.*
 
 
 # Appendices
