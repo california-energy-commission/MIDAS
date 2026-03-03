@@ -278,8 +278,8 @@ ValueData collection will each include the following fields:<br>
 | ValueName | A description of the value  | "Summer on peak" | string |
 | DateStart | Date of pricing period start, in UTC | "2023-03-01" | string |
 | DateEnd | Date of pricing period end, in UTC | "2023-03-01" | string |
-| DayStart | Day type of pricing period, from DayType table | "Wednesday" | string |
-| DayEnd | Day type of pricing period, from DayType table | "Wednesday" | string |
+| DayStart | Day type of pricing period in local time, from DayType table | "Wednesday" | string |
+| DayEnd | Day type of pricing period in local time, from DayType table | "Wednesday" | string |
 | TimeStart | Time of pricing period start, in UTC | "08:00:00" | string |
 | TimeEnd | Time of pricing period end, in UTC | "08:59:59" | string |
 | Unit | Unit associated with value, from unit lookup table | "kWh" | string |
