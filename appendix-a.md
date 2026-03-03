@@ -92,8 +92,8 @@ Each time period (interval) contains these fields:
 * **TimeStart** _required_ This is the time in UTC when the rate interval starts.
 * **DateEnd** _required_ This is the date in UTC when the rate interval ends.
 * **TimeEnd** _required_ This is the time in UTC when the rate interval ends.
-* **DayStart** _required_ This is the day type (1-8) when the rate interval starts. Allowable day types are in the DayType lookup table.
-* **DayEnd** _required_ This is the day type (1-8) when the rate interval ends. Allowable day types are in the DayType lookup table.
+* **DayStart** _required_ Indicates the day type (1–8) in local time when the rate interval begins. Valid day types are listed in the DayType lookup table.
+* **DayEnd** _required_ Indicates the day type (1–8) in local time when the rate interval ends. Valid day types are listed in the DayType lookup table.
 * **Value** _required_ This is the value (usually the price) that applies to the interval.
 * **Unit** _required_ This is the unit that applies to the Value (usually $/kWh) that applies to the interval. Allowable units are in the Unit lookup table.
 * **ValueName** _required_ A description that applies to the interval.
