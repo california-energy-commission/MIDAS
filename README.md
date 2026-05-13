@@ -39,6 +39,10 @@ Market Informed Demand Automation Server (MIDAS) Documentation
 <br>
 
 ### POST MIDAS 2.0
+
+1.  Paid SLAs and paid accounts for aggregators or others who are pulling lots of data from MIDAS every day to cover operational costs
+2.  Push capabilities  
+
 <br>
 
 _Interacting with the MIDAS API_
