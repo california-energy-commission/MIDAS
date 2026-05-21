@@ -41,7 +41,8 @@ Market Informed Demand Automation Server (MIDAS) Documentation
 ### POST MIDAS 2.0
 
 1.  Paid SLAs and paid accounts for aggregators or others who are pulling lots of data from MIDAS every day to cover operational costs
-2.  Push capabilities  
+2.  Push capabilities
+3.  Character limit on Rate Name - 128 
 
 <br>
 
