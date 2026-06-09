@@ -38,19 +38,6 @@ Market Informed Demand Automation Server (MIDAS) Documentation
 
 <br>
 
-### POST MIDAS 2.0
-
-1.  Paid SLAs and paid accounts for aggregators or others who are pulling lots of data from MIDAS every day to cover operational costs
-2.  Push capabilities - Webhooks?
-3.  Character limit on Rate Name - 128
-4.  Build an endpoint similar to 
-      {{baseURL}}/api/HistoricalList/?distributioncode=FL&energycode=EX
-
-   Something like:
-      {{baseURL}}/api/ValueData/?distributioncode=FL&energycode=EX
-
-<br>
-
 _Interacting with the MIDAS API_
 
 # Introduction
