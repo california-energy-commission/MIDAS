@@ -19,7 +19,7 @@ MIDAS v2.0 is a major upgrade to the Market Informed Demand Automation Server. T
 
 ## Breaking Changes
 
-These changes require action from existing integrations. See the [Transition Guide](transition-guide.md) for detailed migration steps.
+These changes require action from existing integrations. See the [Transition Guide](Transition-Guide.md) for detailed migration steps.
 
 ### BC-1 — GHG Emissions Unit Change: `kg/kWh CO2` → `g/kWh CO2`
 
