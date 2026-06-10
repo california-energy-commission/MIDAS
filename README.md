@@ -1,8 +1,6 @@
-# Market Informed Demand Automation Server (MIDAS) — v2.0 Documentation
-============================================================== 
-<br> 
+# Market Informed Demand Automation Server (MIDAS) — v2.0 Documentation 
 
-*California Energy Commission | midas@energy.ca.gov*
+### California Energy Commission | midas@energy.ca.gov
 
 ---
 
@@ -21,12 +19,12 @@
 4. [Authentication](#4-authentication)
 5. [GET Requests — Retrieving Data](#5-get-requests--retrieving-data)
 6. [POST Requests — Uploading Data (LSE Users)](#6-post-requests--uploading-data-lse-users)
-7. [Jobs Endpoint — Tracking Upload Status](#7-jobs-endpoint--tracking-upload-status)
-8. [OpenADR 3.1 Endpoint](#8-openADR3-endpoint)
-9. [System Health Endpoints](#9-system-health-endpoints)
-10. [Error Handling](#10-error-handling)
-11. [Rate Limits](#11-rate-limits)
-12. [Python Examples](#12-python-examples)
+7. [Python Code Examples for Users](#7-Python-Examples) 
+8. [Jobs Endpoint — Tracking Upload Status](#8-jobs-endpoint--tracking-upload-status)
+9. [OpenADR 3.1 Endpoint](#9-openADR3-endpoint)
+10. [System Health Endpoints](#10-system-health-endpoints)
+11. [Error Handling](#11-error-handling)
+12. [Rate Limits](#12-rate-limits)
 13. [Appendices](#13-appendices)
 
 ---
