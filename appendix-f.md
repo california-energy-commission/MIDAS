@@ -1,7 +1,11 @@
 # Watttime's SGIP GHG and CAISO's FlexAlert Signals RIN Mapping
 
+## Table of Contents
 
-## SGIP GHG Emissions RIN Consolidation: `USCA-SGIP-MOER-{REGION}`
+1. [SGIP GHG Emissions RIN Consolidation: `USCA-SGIP-MOER-{REGION}`](#1-sgip-ghg-emissions-rin-consolidation-usca-sgip-moer-region)
+2. [Flex Alert RIN Consolidation: `USCA-FLEX-ALRT-0000`](#2-flex-alert-rin-consolidation-usca-flex-alrt-0000)
+
+## 1. SGIP GHG Emissions RIN Consolidation: `USCA-SGIP-MOER-{REGION}`
 
 **Component:** MIDAS API / ValueData & HistoricalData 
 **Related Repo:** [california-energy-commission/MIDAS](https://github.com/california-energy-commission/MIDAS) 
@@ -207,7 +211,7 @@ Identical to every other rate signal in MIDAS — there are **no SGIP-specific f
 ---
 
 
-## Flex Alert RIN Consolidation: `USCA-FLEX-ALRT-0000`
+## 2. Flex Alert RIN Consolidation: `USCA-FLEX-ALRT-0000`
 
 **Component:** MIDAS API / ValueData & HistoricalData 
 
