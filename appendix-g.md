@@ -1,6 +1,6 @@
 # Python Code Examples
 
-## 1 Register a New Account
+## 1. Register a New Account
 
 ```python
 import requests
@@ -31,7 +31,7 @@ print(response.json())
 # Check your email and click the verification link before continuing.
 ```
 
-## 2 Confirm Email Programmatically
+## 2. Confirm Email Programmatically
 
 ```python
 # Use the code from your verification email
@@ -42,7 +42,7 @@ response = requests.post(
 print(response.json())
 ```
 
-## 3 Get a Token
+## 3. Get a Token
 
 ```python
 import requests
@@ -69,7 +69,7 @@ token = get_token("jsmith_utility", "MySecureP@ss1")
 print(f"Token acquired. Expires in 3600s.")
 ```
 
-## 4 Get RIN List (No Auth Required in v2.0)
+## 4. Get RIN List (No Auth Required in v2.0)
 
 ```python
 import requests
@@ -89,7 +89,7 @@ for rin in rin_list[:5]:
     print(rin["RateID"], "-", rin["Description"])
 ```
 
-## 5 Query Flex Alert Data
+## 5. Query Flex Alert Data
 
 ```python
 import requests
@@ -112,7 +112,7 @@ for entry in data.get("ValueInformation", []):
     print(f"{entry['DateStart']} {entry['TimeStart']} — {status}")
 ```
 
-## 6 Query GHG Emissions (SMUD Region)
+## 6. Query GHG Emissions (SMUD Region)
 
 ```python
 import requests
@@ -133,7 +133,7 @@ for entry in data.get("ValueInformation", [])[:5]:
     print(f"{entry['TimeStart']} — {entry['Value']} g/kWh CO2")
 ```
 
-## 7 Upload Rate Data and Track Job Status
+## 7. Upload Rate Data and Track Job Status
 
 ```python
 import requests
@@ -201,7 +201,7 @@ with open("my_rate_upload.json") as f:
 final_result = upload_and_track(token, payload)
 ```
 
-## 8 List Recent Upload Jobs
+## 8. List Recent Upload Jobs
 
 ```python
 import requests
@@ -226,7 +226,7 @@ for job in jobs:
     print(f"{job['id']} | {job['status']} | RINs: {rins}")
 ```
 
-## 9 Get Historical Data for a Date Range
+## 9. Get Historical Data for a Date Range
 
 ```python
 import requests
@@ -244,7 +244,7 @@ data = response.json()
 print(f"Returned {len(data.get('ValueInformation', []))} intervals")
 ```
 
-## 10 Request Upload Access (LSE Self-Service)
+## 10. Request Upload Access (LSE Self-Service)
 
 ```python
 import requests
