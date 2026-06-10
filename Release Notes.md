@@ -1,9 +1,13 @@
 # MIDAS API v2.0 — Release Notes
 
-**Release Date:** June 22, 2026
-**Version:** 2.0
-**Previous Version:** 1.0
-**Contact:** midas@energy.ca.gov
+**Release Date:** June 22, 2026 
+
+**Version:** 2.0 
+
+**Previous Version:** 1.0 
+
+**Contact:** midas@energy.ca.gov 
+
 
 ---
 
