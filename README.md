@@ -1,61 +1,98 @@
-Market Informed Demand Automation Server (MIDAS) Documentation
-==============================================================
+# Market Informed Demand Automation Server (MIDAS) — v2.0 Documentation 
 
-<br>
-<font color="red"><h1>Updates</h1></font>
+### California Energy Commission | midas@energy.ca.gov
 
-### MIDAS 2.0
-1.     System Level
-    * Improved speed, uptime and reliability with more advanced AWS storage and computation
-    * Tracking system performance and analytics
-   * More system level health check end points
-  
-     
-3.     GET Requests
+---
 
-   * No registration required for GET Requests
-   * Realtime query returns 72 hours of data starting from 00:00:00 am on the day of querry
-   * Alldata query returns 90 days of data ending at the same time as realtime query (i.e. 11:59:59 pm of day+2 where 'day' is the date of query made
-   * Token is now valid for 3600 seconds instead of 600 seconds.
-   * No HistoricalRINList Endpoint
-   * No Holiday Endpoint
-   * New RINs and updated API parameters for CAISO's Flex Alerts and WattTime GHG emmissions querries
-   * New OpenADR 3.1 compatible endpoints - EventList, Event etc.
-   * Possibly new parameters for RINList endpoint - To distinguish active and all RINs
-   * New system (either a URL or email request) for download data older than 2 years
-   * Data Retention - 2 years worth active + 5 years of historical
+> **Release Notice — June 22, 2026**
+> MIDAS v2.0 is live as of June 22, 2026. If you are migrating from v1.0, please read the [Transition Guide](transition-guide.md) before making any API calls. The base URL for the production system is **https://midasapi.energy.ca.gov**. All test-environment URLs referenced in pre-release materials are no longer active.
 
+---
 
-4.     POST Requests
+---
 
-   * Everyone with the current POST access to MIDAS will need to re-register and re-verify the email
-   * Two level data validation - API HTTPS Response and Email Response
-   * New endpoints for seeking upload access
-   * Allowing multiple Distribution and Energy codes upload access to a single account
-   * Warnings and Tracking:
-     * Past data upload
-     * Data Gap between the latest data point in MIDAS and earliest data point in the new upload
+## Table of Contents
 
-<br>
+1. [Introduction](#1-introduction)
+2. [What's New in v2.0](#2-whats-new-in-v20)
+3. [Database Structure](#3-database-structure)
+4. [Authentication](#4-authentication)
+5. [GET Requests — Retrieving Data](#5-get-requests--retrieving-data)
+6. [POST Requests — Uploading Data (LSE Users)](#6-post-requests--uploading-data-lse-users)
+7. [Python Code Examples for Users](#7-Python-Examples) 
+8. [Jobs Endpoint — Tracking Upload Status](#8-jobs-endpoint--tracking-upload-status)
+9. [OpenADR 3.1 Endpoint](#9-openADR3-endpoint)
+10. [System Health Endpoints](#10-system-health-endpoints)
+11. [Error Handling](#11-error-handling)
+12. [Rate Limits](#12-rate-limits)
+13. [Appendices](#13-appendices)
 
-_Interacting with the MIDAS API_
+---
 
-# Introduction
+## 1. Introduction
 
-The California Energy Commission’s (CEC) Market Informed Demand Automation Server (MIDAS) is a database and application programming interface (API) that provides access to current, future, and historic time-varying rates, greenhouse gas (GHG) emissions associated with electrical generation, and California Flex Alert Signals. The database is populated by utilities and community choice aggregators (CCAs) - collectively called as load serving entities (LSEs), WattTime’s Self-Generation Incentive Program (SGIP) marginal GHG emissions API, the California Independent System Operator (California ISO), and other entities that are registered with the MIDAS system.
+The California Energy Commission’s (CEC) Market Informed Demand Automation Server (MIDAS) is a database and application programming interface (API) that provides access to current, future, and historic time-varying rates, greenhouse gas (GHG) emissions associated with electrical generation, and California Flex Alert Signals. The database is populated by utilities and community choice aggregators (CCAs), WattTime’s Self-Generation Incentive Program (SGIP) marginal GHG emissions API, the California Independent System Operator (California ISO), and other entities that are registered with the MIDAS system.
 
-MIDAS is designed to provide energy users with the electricity price information they need to optimize their energy use. While it would be useful for electricity users to be able to use the data from MIDAS to try to estimate electricity bill totals, some billing structures such as tiered rates make this impossible without private customer-specific data. MIDAS does not, and will not, contain any private information. The only non-public data in MIDAS is login information for the uploaders. 
+MIDAS is designed to provide energy users with the electricity price information they need to optimize when they use energy. While it would be useful for electricity users to be able to use the data from MIDAS to try to estimate electricity bill totals, some billing structures such as tiered rates make this impossible without private customer-specific data. MIDAS does not, and will not, contain any private information. The only non-public data in MIDAS is login information.
 
-MIDAS is accessible through a public API at <https://midasapi.energy.ca.gov> in two standard machine-readable formats: JavaScript Object Notation (JSON), and extensible markup language (XML). MIDAS is publicly accessible, allowing all users to query and download information by interacting with the MIDAS API. CEC strongly encourages load serving entity (LSE) users have programming skills and software to effectively upload and maintain rate information stored in the database. Non-LSE users should be able to retrieve information stored in MIDAS without extensive programming skills. Retrieving MIDAS-hosted data can be easily done through the code examples provided or through a user’s own code. For instructions on accessing the MIDAS database, see [Getting Information from MIDAS](#getting-information-from-midas).
+MIDAS is accessible through a public API at <https://midasapi.energy.ca.gov> in two standard machine-readable formats: JavaScript Object Notation (JSON), and extensible markup language (XML). MIDAS is publicly accessible, allowing all registered users to query and download information by interacting with the MIDAS API. Registration is a simple process available through the API. CEC strongly encourages load serving entity (LSE) users have programming skills and software to effectively upload and maintain rate information stored in the database. Non-LSE users should be able to retrieve information stored in MIDAS without extensive programming skills. Retrieving MIDAS-hosted data can be easily done through the code examples provided or through a user’s own code. For instructions on accessing the MIDAS database, see [Getting Information from MIDAS](#getting-information-from-midas).
 
 MIDAS was developed to support the CEC's [Load Management Standards](https://www.energy.ca.gov/programs-and-topics/topics/load-flexibility/load-management-standards). The full text of the standards is available from [Westlaw](https://govt.westlaw.com/calregs/Browse/Home/California/CaliforniaCodeofRegulations?guid=ID6B950105CCE11EC9220000D3A7C4BC3).
 
+### Who Uses MIDAS?
 
-# Database Structure
+| User Type | What They Do |
+|-----------|--------------|
+| **Read-only users** | Query rates, GHG signals, and Flex Alert data. No registration required as of v2.0. |
+| **LSE uploaders** | Utilities and CCAs that POST rate data. Must register, verify email, and request upload access through the new access-request workflow. |
+| **Integrators / automation providers** | Developers building load management systems, OpenADR clients, or analytics platforms on top of MIDAS data. |
 
-The MIDAS database supports retrieval of electric utility price schedules, California Flex Alert signals, and marginal GHG emissions from electrical generation. Flex Alerts and GHG emissions values – both forecasted and real-time - are continually retrieved from the California ISO Flex Alert site and WattTime’s SGIP API respectively. GHG realtime and forecasted values are cached, or temporarily stored, within MIDAS until new values are available while Flex Alerts are passed through MIDAS from the California ISO website, as a user queries MIDAS. ~~Previous real-time values are moved to the HistoricalData table automatically. A record of previously active Flex Alerts and historic GHG emissions are stored in the HistoricalData table.~~
+**Base URL:** `https://midasapi.energy.ca.gov`
 
-Pursuant to the California Load Management Standards, the state’s largest utilities and CCAs are responsible for populating the MIDAS database ~~Holiday table,~~ RateInfo table, and the Value table with all time-varying rate information and values offered to customers. For upload examples, please see [Appendix A](appendix-a.md). For instructions on how to retrieve the XML upload schema, please see section 3.
+**Supported formats:** JSON and XML (XML payloads are accepted for uploads and are converted internally)
+
+**API version:** 2.0 
+
+### Security
+
+The MIDAS API and database are protected by the CEC firewall and data throttling to prevent Distributed Denial of Service (DDoS) attacks (see [Appendix D](appendix-d.md)). If an error occurs after an API call, the program will send a notification for CEC information technology (IT) staff to fix the issue.
+
+---
+
+## 2. What's New in v2.0
+
+See also: [Release Notes](release-notes.md) for the full changelog and [Transition Guide](transition-guide.md) for migration steps.
+
+### For GET Users (Data Consumers)
+
+- **No registration required** to query data. All `GET /api/valuedata` calls are now publicly accessible without a token.
+- **Token lifetime extended** to 3,600 seconds (1 hour), up from 600 seconds.
+- **Realtime query window:** 72 hours starting at 00:00:00 Pacific on the day of the request.
+- **Alldata query window:** 90 days ending at 23:59:59 Pacific on Day+2 of the request date.
+- **Unified SGIP GHG RINs:** 33 RINs (SGRT/SGFC/SGHT per region) consolidated into 11 MOER RINs — one per grid region.
+- **Unified Flex Alert RIN:** Three RINs (FXRT/FXFC/FXHT) replaced by a single `USCA-FLEX-ALRT-0000` RIN.
+- **GHG unit change:** Emissions values now reported in `g/kWh CO2` (previously `kg/kWh CO2`). Multiply old values by 1,000.
+- **Updated RINList response format:** Responses are now wrapped in a top-level keyed object.
+- **Removed endpoints:** `HistoricalRINList`, `Holiday` lookup table, `TimeZone` lookup table.
+- **New OpenADR 3.1 endpoint:** `GET /oadr/events` for OpenADR-compatible clients.
+- **Data retention:** 2 years of active data directly accessible via API; 5 years in cold storage archive; data older than 7 years available on request at midas@energy.ca.gov.
+
+### For POST Users (LSE Uploaders)
+
+- **Re-registration required.** All existing LSE accounts must re-register and re-verify email before uploading.
+- **New upload access workflow:** After registration, submit a formal request via `POST /api/uploadaccess/request`. A CEC admin will approve the request and assign authorized distribution and energy codes.
+- **Multiple codes per account:** A single account may now hold multiple distribution codes and multiple energy codes.
+- **Two-stage validation:** The API returns `HTTP 202 Accepted` with a `jobID` after initial validation passes. Final validation (data quality, regulatory checks) runs asynchronously. Check status at `GET /api/jobs/{jobID}`.
+- **No more status emails for routine uploads.** The `/jobs` endpoint replaces email notifications for upload status. Emails are still sent for access approvals and critical issues.
+- **Extended token lifetime:** Tokens are now valid for 3,600 seconds.
+- **Interval enforcement:** Allowed upload intervals are 1 hour, 15 minutes, and 5 minutes only. The interval is assigned to a RIN on first upload and cannot change. All units in an upload must use the same interval and the same count of data points.
+---
+
+## 3. Database Structure
+
+The MIDAS database supports retrieval of electric utility price schedules, California Flex Alert signals, and marginal GHG emissions from electrical generation. Flex Alerts and GHG emissions values – both forecasted and real-time - are continually retrieved from the California ISO Flex Alert site and WattTime’s SGIP API respectively. GHG realtime and forecasted values are cached, or temporarily stored, within MIDAS until new values are available while Flex Alerts are passed through MIDAS from the California ISO website, as a user queries MIDAS. Previous real-time values are moved to the HistoricalData table automatically. A record of previously active Flex Alerts and historic GHG emissions are stored in the HistoricalData table.
+
+Pursuant to the California Load Management Standards, the state’s largest utilities and CCAs are responsible for populating the MIDAS database Holiday table, RateInfo table, and the Value table with all time-varying rate information and values offered to customers. For upload examples, please see [Appendix A](appendix-a.md). For instructions on how to retrieve the XML upload schema, please see section 3.
 
 The primary lookup identification (ID) for the MIDAS database is a compound key comprised of six individual fields that make up a standardized rate identification number (RIN) as shown in Figure 1. RINs are assigned at the time rate information is first uploaded by the LSE through the MIDAS API. When an LSE uploads to an existing RIN, the correct RIN must be used at the time of upload. Figure 1 illustrates the six identifiers that comprise a RIN: Country, State, Distribution, Energy, Rate, and Location. The location portion of the RIN may consist of 1 to 10 characters depending on the specified location’s requirements.
 
@@ -71,432 +108,384 @@ To fulfill the requirements of the California's load management standards, MIDAS
 
 ## SGIP GHG Emissions
 
-WattTime estimates GHG emissions for 11 regions across the state of California, providing real-time and forecasted values for each. MIDAS includes a total of 11 GHG RINs for California, one per region. RINs following the pattern `USCA-SGIP-MOER-{REGION}` allow access to the GHG information retrieved from the [WattTime SGIP API](https://sgipsignal.com) by MIDAS. The `MOER` portion of the RIN stands for **Marginal Operating Emissions Rate**.
-
-Each RIN supports the following standard MIDAS query types:
-
-- **`realtime`** — Returns GHG emissions data from the previous midnight through 72 hours ahead, including both current and forecasted values at 5-minute intervals.
-- **`alldata`** — Returns up to 90 days of historical GHG emissions data for the specified region.
-
-For a list of regions and their abbreviations, see WattTime's SGIP webpage at: https://sgipsignal.com/grid-regions.
+WattTime estimates GHG emissions for 11 regions across the state of California providing real-time and forecasted values for each. MIDAS includes a total of 33 different GHG RINs for California - real-time, forecasted, and historic. RINs with the first 12 characters USCA-SGIP-SGRT-XXXX, USCA-SGIP-SGFC-XXXX, and USCA-SGIP-SGHT-XXXX allow access to the GHG information retrieved from the [WattTime.org SGIP API](https://sgipsignal.com) by MIDAS. The portion of the RIN specified as “SGRT” stands for “SGIP real-time”, “SGFC” stands for “SGIP forecast”, and “SGHT” stands for “SGIP historic”. The SGRT RIN will return only one data point that specifies the current CO2 level for the specified region. The SGFC RIN will return the forecasted CO2 levels, at 5-minute intervals, available from the WattTime API. SGHT RINs will return the historic information for each SGIP GHG emissions region. Once a real-time emissions value is replaced with a new current value, the information is moved to the HistoricalData table where it can be retrieved through the SGHT RIN. For a list of the regions and region abbreviations please see WattTime’s SGIP webpage at: <https://sgipsignal.com/grid-regions>.
 
 ## CAISO Flex Alerts
 
-The California ISO (CAISO) maintains information on whether a Flex Alert is currently active
-or planned. MIDAS monitors the CAISO Flex Alert signal and stores it as a continuous hourly
-time series, accessible through a single RIN: `USCA-FLEX-ALRT-0000`.
+MIDAS includes three different Flex Alert RINs: real-time, forecasted, and historic values, along with dates and times of previous Flex Alerts. The California ISO maintains information as to whether there is an active Flex Alert and whether one is planned. MIDAS checks the California ISO Flex Alert webpage for Flex Alerts and adds them to the database.
 
-Each hour in the response contains one of two values:
-
-- `Value = 1`, `ValueName = "Active Flex Alert"` — a Flex Alert was or is active during that hour
-- `Value = 0`, `ValueName = "No Active Flex Alert"` — no Flex Alert was active during that hour
-
-The RIN supports the following standard MIDAS query types:
-
-- **`realtime`** — Returns hourly Flex Alert status from the previous midnight through 72 hours
-  ahead, covering current and forecasted alert windows.
-- **`alldata`** — Returns up to 90 days of hourly historical Flex Alert status.
-
+RINs of USCA-FLEX-FXRT-0000 and USCA-FLEX-FXFC-0000 check for CA ISO Flex Alerts at the moment a query is initiated through the MIDAS API. The result is passed through to the querying user directly. The “FXRT” portion of the first RIN stands for “Flex Alert real-time” and “FXFC” in the second RIN stands for “Flex Alert forecasted”. In the RIN USCA-FLEX-FXHT-0000, “FXHT” stands for “Flex Alert historical”. All previously active Flex Alerts will be reflected in the information retrieved with this RIN.
 For more information on the XML schema and uploads, see [Appendix A](appendix-a.md).
 
-## ~~Archived Data in the HistoricalData Table~~
+See [Appendix F](appendix-f.md) for the full SGIP and FlexAlert RIN mapping and complete list of active RINs.
 
-~~MIDAS stores uploaded data in the HistoricalData table to provide a durable record of rate information. Each time an LSE account, whether a distribution or energy company, uploads new rate information, the uploaded information is also added to the HistoricalData table. For example, if an LSE user designated as a distribution company uploads a new file with values for one RIN, that data will be added to the HistoricalData table at the same time it is added to the Value table.
-The data in the HistoricalData table will always be up to date as well as providing a historical record. The information in the HistoricalData table can then be queried through the HistoricalData endpoint.~~
+### Data Retention
 
+| Tier | Window | Access Method |
+|------|--------|---------------|
+| Active | 2 years | MIDAS API (`realtime`, `alldata`, `historicaldata`) |
+| Archive | Years 2–5 | Cold storage — contact midas@energy.ca.gov |
+| Legacy | Older than 7 years | Request from CEC at midas@energy.ca.gov |
 
-# Getting Information From MIDAS
+---
 
-The MIDAS API is a Representational State Transfer Application Programming Interface (RESTful API) accessible using any programming language able to create instances of a Hypertext Transfer Protocol (HTTP) Client, HTTP Request and HTTP Response classes. Users may develop their own in-house software to connect with the MIDAS RESTful API. The requests (calls) and responses should be executed asynchronously. Most software for interacting with APIs will allow easy interaction with the MIDAS API.
+## 4. Authentication
 
-The MIDAS API and database are protected by the CEC firewall and data throttling to prevent Distributed Denial of Service (DDoS) attacks (see [Appendix D](appendix-d.md)). If an error occurs after an API call, the program will send a notification for CEC information technology (IT) staff to fix the issue.
+### GET Requests
 
-The MIDAS API is comprised of six endpoints:
+As of v2.0, **no token is required** for public GET requests to `GET /api/valuedata` with `SignalType`, `ID+QueryType`, or `LookupTable` parameters. The token endpoint remains available for LSE uploaders.
 
-* Registration: Use POST to create a new account - only needed for data uploaders.
-* Token: Use GET to retrieve a temporary token for interacting with the MIDAS API. Tokens must be passed to every API call except Registration and Token - only needed for data uploaders.
-* ~~Holiday: Use GET to retrieve the list of all holidays. LSE accounts may use POST to populate the Holiday table.~~
-* ValueData: Use GET to retrieve a list of available rates (RINs), rate information, the XML schema, or lookup tables. LSE accounts may use POST to upload data to the RateInfo and Value tables.
-* HistoricalData: Use GET to retrieve historic rate information.
-* ~~HistoricalList: Use GET to retrieve the list of rates (RINs) available from HistoricalData.~~
+### POST Requests and LSE Endpoints
 
-The following are instructions for registering a MIDAS account and a description of the basic functions that can be used to upload and download MIDAS data. The examples use the Python programming language. Links to GitHub repositories with examples in Python and other programming languages are in [Example Code](#example-code) below.
+All upload and access-management endpoints require a **JWT Bearer token**.
 
-Date, time, and datetime values in the MIDAS database use the [ISO 8601 standard](https://en.wikipedia.org/wiki/ISO_8601).
+**Step 1 — Register**
 
-## Register
+```
+POST /api/registration
+```
 
-~~There are two types of accounts that can be used to interface with MIDAS: LSE accounts and user accounts.~~ For security and accuracy of the system, only CEC-verified LSE accounts can upload (POST) data. Those wishing to retrieve data stored in the MIDAS database must register a user account and use that account to retrieve an access token to authenticate GET and POST requests.
+All fields are Base64-encoded. Required fields: `fullname`, `username`, `password`, `emailaddress`, `organization`.
 
-~~User accounts can only query (GET) data from MIDAS, with the exception of registering for an account using the Registration endpoint.~~
+On success: HTTP 200, verification email sent to provided address. You must click the verification link before requesting a token.
 
-~~1. User Accounts: User account registrants may include researchers, automation service providers, technology manufacturers, etc. Registration is done through the API by making a one-time call to the MIDAS registration endpoint with the required parameters. If no errors occur, this process will send an email to the email address specified as a parameter to the call. The user must then respond to the email before they can request a token. User account holders cannot post data.~~
+**Step 2 — Verify email**
 
-~~2. LSE Accounts: New accounts for utilities and community-choice aggregators will follow the same registration process as User accounts. Following a successful registration, send an email to midas@energy.ca.gov from your LSE account to request access.  Accounts must be verified by a CEC staff member on the MIDAS support team to allow LSE-level access. An LSE account may only be registered under one distribution or energy company, allowing upload capabilities under only one company.~~
+Click the link in the verification email. Or confirm programmatically:
 
-~~A successful registration will return: “User account for [your username] was successfully created. A verification email has been sent to [your email]. Please click the link in the email to start using the API.” The email address provided as part of registration will only be used for verification and infrequent communication about the MIDAS API.~~
-A successful registration will return a JSON response containing a confirmation message, your username, and an `email_verification_sent` flag set to `true`. A verification email will be sent to the address provided.
+```
+POST /api/confirmemail?username=<username>&confirmation_code=<code>
+```
 
-~~For forgotten passwords or usernames please follow the links below:~~
+**Step 3 — Get a token**
 
-~~Password: <https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotPassword>~~
+```
+GET /api/token
+Authorization: Basic <base64(username:password)>
+```
 
-~~Username: <https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotUsername>~~
+The JWT token is returned in the `Token` response **header**. The response body contains metadata (`token_type`, `expires_in`). Tokens expire after **3,600 seconds**.
 
-**Endpoint:** `/Registration`
+**Step 4 — Request upload access (LSE only)**
 
-**HTTP Request:** `POST https://midasapi.energy.ca.gov/api/Registration`
+```
+POST /api/uploadaccess/request
+Authorization: Bearer <token>
+Body: { "energy_code": "XX", "distribution_code": "XX" }
+```
 
-**Authorization:** None
+A CEC admin reviews and approves the request. You will receive an email confirmation when access is granted.
 
-**Query Parameters:** None
+**Forgot password:**
+```
+POST /api/forgotpassword?username=<username>
+POST /api/confirmpasswordreset   { "token": "...", "new_password": "..." }
+```
 
-**Body Parameters:**
+**Resend verification email:**
+```
+POST /api/resendverification?username=<username>
+```
 
-When registering, the body of the uploaded JSON has the following fields:
+---
 
-| Name                           | Description                                   | Type    |
-|--------------------------------|-----------------------------------------------|---------|
-| fullname <br> _required_       | The full name for the user, encoded as base64 | string  |
-| username <br> _required_       | Requested user name, encoded as base64        | string  |
-| password <br> _required_       | Password, encoded as base64                   | string  |
-| emailaddress <br> _required_   | Email address, encoded as base64              | string  |
-| organization                   | Name of organization, encoded as base64       | string  |
+## 5. GET Requests — Retrieving Data
 
-**Response Fields:**
+### 5.1 Get RIN List
 
-| Name                    | Description                                              | Type    |
-|-------------------------|----------------------------------------------------------|---------|
-| message                 | Confirmation message                                     | string  |
-| username                | The registered username                                  | string  |
-| email_verification_sent | `true` if a verification email was successfully sent     | boolean |
+Returns all RINs of a given signal type.
 
-**Python Example**
+```
+GET /api/valuedata?SignalType={0|1|2|3}
+```
 
-```python
-import requests
-import json
-import base64
+**Response format (v2.0 — wrapped object):**
 
-# Encode registration values as base64
-fullname = ""
-fullname64 = base64.b64encode(fullname.encode("utf-8")).decode("utf-8")
-
-username = ""
-username64 = base64.b64encode(username.encode("utf-8")).decode("utf-8")
-
-password = ""
-password64 = base64.b64encode(password.encode("utf-8")).decode("utf-8")
-
-emailaddress = ""
-emailaddress64 = base64.b64encode(emailaddress.encode("utf-8")).decode("utf-8")
-
-# organization is optional
-organization = ""
-organization64 = base64.b64encode(organization.encode("utf-8")).decode("utf-8")
-
-registration_info = {
-    "fullname": fullname64,
-    "username": username64,
-    "password": password64,
-    "emailaddress": emailaddress64,
-    "organization": organization64
+```json
+{
+  "Rates": [
+    {
+      "RateID": "USCA-BNBN-EVT2-0000",
+      "SignalType": "Electricity Rates",
+      "Description": "BEV-1 - CPP",
+      "LastUpdated": "2026-05-22T14:56:34+0000"
+    }
+  ]
 }
-
-url = 'https://midasapi.energy.ca.gov/api/registration'
-headers = {"Content-Type": "application/json"}
-
-response = requests.post(url, data=json.dumps(registration_info), headers=headers)
-
-# Will return HTTP Status Code 200 on success
-print(response)
-print(response.json())
-# Example response:
-# {
-#   "message": "User account for  was successfully created...",
-#   "username": "",
-#   "email_verification_sent": true
-# }
 ```
 
-## GET a Token
+> **v1.0 vs v2.0:** The v1.0 response was a bare array. v2.0 wraps results in a keyed object. Update any code that relied on the response being a top-level array.
 
-After registering and verifying your email address, make a GET request to the token endpoint using HTTP Basic authentication. On success, a JWT access token is returned in the `Token` response header. The response body contains token metadata including type and expiration. This token expires after 10 minutes, during which it can be used for all other MIDAS API calls up to the request rate limit. Pass the token in the `Authorization` header of each subsequent request.
+### 5.2 Get Rate Values
 
-**Endpoint:** `/Token`
-
-**HTTP Request:** `GET https://midasapi.energy.ca.gov/api/Token`
-
-**Authorization:** Basic
-
-**Response Headers:**
-
-| Name  | Description               |
-|-------|---------------------------|
-| Token | JWT access token string   |
-
-**Response Fields:**
-
-| Name       | Description                              | Type    |
-|------------|------------------------------------------|---------|
-| message    | Authentication status message            | string  |
-| token_type | Token type (e.g. `Bearer`)               | string  |
-| expires_in | Token lifetime in seconds                | integer |
-
-**Python Example**
-
-```python
-import requests
-import base64
-
-username = ""
-password = ""
-
-credentials = username + ":" + password
-credentials_encoded = base64.b64encode(credentials.encode("utf-8"))
-
-headers = {b'Authorization': b'BASIC ' + credentials_encoded}
-url = 'https://midasapi.energy.ca.gov/api/token'
-
-response = requests.get(url, headers=headers)
-
-# Will return HTTP Status Code 200 on success
-print(response)
-print(response.json())
-# Example response body:
-# {
-#   "message": "Authentication successful",
-#   "token_type": "Bearer",
-#   "expires_in": 600
-# }
-
-token = response.headers['Token']
-print(token)
+```
+GET /api/valuedata?ID={RIN}&QueryType={realtime|alldata}
 ```
 
-## GET RIN List
+| QueryType | Window |
+|-----------|--------|
+| `realtime` | 72 hours from midnight Pacific on the request date |
+| `alldata` | 90 days ending at 23:59:59 Pacific on Day+2 |
 
-To receive a list of RINs in the MIDAS database, users may query the API using the GET RIN List call. This call is part of the ValueData endpoint with a parameter that identifies the signal type of the RINs being returned. The signal type parameter will return all the RINs of the requested type:
+Query parameter names are **case-insensitive**. The DateStart, DateEnd, TimeStart, and TimeEnd are in UTC.
 
-0.	All
-1.	Electricity rates
-2.	Greenhouse gas emissions
-3.	California Independent System Operator Flex Alert
-
-**Endpoint:** `/ValueData`
-
-**HTTP Request:** `GET https://midasapi.energy.ca.gov/api/ValueData?SignalType={SignalType}`
-
-**Authorization:** Bearer
-
-**Query Parameters:**
-
-| Name                         | Description                                   | Example | Type   |
-|------------------------------|-----------------------------------------------|---------|--------|
-| SignalType <br> _required_   | The requested signal type 0-3                 | 1       | integer |
-
-**Body Parameters:** None
-
-**Response Description:**
-
-Collection of RateInfo, each entry includes the following:<br>
-| Name    | Description                                   | Example | Type   |
-|--------|-----------------------------------------------|---------|--------|
-| RateID | The rate identification number (RIN)        | "USCA-TSTS-TTOU-TEST" | string |
-| SignalType | The signal type in string format        | "Rates" | string |
-| Description | Includes human readable Distribution and Energy providers | "Rate Data for Distributor: Test, Energy Company: Test" | string | 
-| LastUpdated | Datetime for last update for this RIN in ISO 8601 format        | "2021-07-14T14:31:55+0000" | string |
-
-**Python Example**
-
-```python
-import requests
-import json
-
-# SignalType 1 returns electricity rates
-signaltype = '1'
-
-headers = {'accept': 'application/json', 'Authorization': "Bearer " + token}
-url = base_url + '/valuedata?signaltype=' + signaltype
-list_response = requests.get(url, headers = headers)
-
-# Pretty print response
-print(json.dumps(json.loads(list_response.text), indent = 2))
+**Example — Flex Alert realtime:**
+```
+GET /api/valuedata?ID=USCA-FLEX-ALRT-0000&QueryType=realtime
 ```
 
-## GET Values
-
-Use this query to receive values and other information on a specified RIN. Pass a RIN with parameter RealTime to return the current value, or AllData to the ValueData endpoint to return the full schedule in either XML or JSON, as indicated in the header.
-
-**Endpoint:** `/ValueData`
-
-**HTTP Request:** `GET https://midasapi.energy.ca.gov/api/ValueData?ID={ID}&QueryType=(QueryType)`
-
-**Authorization:** Bearer
-
-**Query Parameters:**
-
-| Name                         | Description                                   | Example | Type   |
-|------------------------------|-----------------------------------------------|---------|--------|
-| ID <br> _required_   | The RIN for the requested rate               | "USCA-TSTS-TTOU-TEST" | string |
-| QueryType <br> _required_ | The requested data type, either "alldata" or "realtime" | "alldata" | string |
-
-**Body Parameters:** None
-
-**Response Description:**
-
-Rate Information will include the following fields:<br>
-| Name    | Description                                   | Example | Type   |
-|--------|-----------------------------------------------|---------|--------|
-| RateID | The rate identification number (RIN)        | "USCA-TSTS-TTOU-TEST" | string |
-| SystemTime_UTC | The time of the response in UTC | "2023-03-21T16:34:42.906Z" | string |
-| RateName | The name of the rate as provided by uploading party | "CEC TEST24HTOU" | string |
-| RateType | The type of rate, from the RateType table | "Time of use" | string |
-| Sector | The sector where the rate applies, from the Sector table | "All" | string |
-| API_Url | The API URL as provided by uploading party | "http://example" | string |
-| RatePlan_Url | Link to rate schedule as provided by uploading party | "http://example" | string |
-| EndUse | The end use where the rate applies, from the EndUse table | "All" | string |
-| AltRateName1 | An alternate name of the rate as provided by uploading party | "TEST-TOU" | string |
-| AltRateName2 | Another alternate name of the rate as provided by uploading party | "TESTING TOU" | string |
-| SignupCloseDate | The last day to sign up for the rate as provided by uploading party | "2025-12-31" | string |
-| SignalType | Represents the type of signal (Electricity Rates vs. GHG Emissions vs. FlexAlert | "Electricity Rates" | string |
-| Description | Description for the specific RateID | "Test TOU Rate - TOU" | string |
-| ValueInformation | Collection of ValueData as descipbed in the next table |  | Collection of ValueData |
-
-ValueData collection will each include the following fields:<br>
-| Name    | Description                                   | Example | Type   |
-|--------|-----------------------------------------------|---------|--------|
-| ValueName | A description of the value  | "Summer on peak" | string |
-| DateStart | Date of pricing period start, in UTC | "2023-03-01" | string |
-| DateEnd | Date of pricing period end, in UTC | "2023-03-01" | string |
-| DayStart | Day type of pricing period in local time, from DayType table | 3 | integer |
-| DayEnd | Day type of pricing period in local time, from DayType table | 3 | integer |
-| TimeStart | Time of pricing period start, in UTC | "08:00:00" | string |
-| TimeEnd | Time of pricing period end, in UTC | "08:59:59" | string |
-| Unit | Unit associated with value, from unit lookup table | "kWh" | string |
-| Value | Value of price or emissions | 0.36 | decimal |
-
-Combining DateStart with TimeStart is the UTC datetime for the start of the period, and combining DateEnd with TimeEnd is the UTC datetime for the start of the period.
-
-**Python Example**
-
-```python
-import requests
-import json
-
-queryType = 'alldata'
-
-rateID = 'USCA-TSTS-TTOU-TEST'
-headers = {'accept': 'application/json', 'Authorization': "Bearer " + token}
-url = 'https://midasapi.energy.ca.gov/api/valuedata?id=' + rateID + '&querytype=' + queryType
-pricing_response = requests.get(url, headers = headers)
-
-# Will return HTTP Status Code 200 response for successful call
-print(pricing_response)
-print(json.dumps(json.loads(pricing_response.text), indent = 2))
+**Example — GHG emissions for SMUD region:**
+```
+GET /api/valuedata?ID=USCA-SGIP-MOER-SMUD&QueryType=alldata
 ```
 
-## GET Lookup Table
+### 5.3 Get Historical Data
 
-To get the values stored in each lookup table, use the GET Lookup Table call. This call is part of the ValueData endpoint with a parameter that identifies the relevant lookup table. Possible lookup tables include Country, Daytype, Distribution, Enduse, Energy, Location, Ratetype, Sector, State, and Unit. The returned data will have the upload code and description for the specified lookup table. See [Appendix C](appendix-c.md) for more detail on the lookup tables.
+For date-range queries beyond the `alldata` 90-day window (up to 1 year per request):
 
-**Endpoint:** `/ValueData`
-
-**HTTP Request:** `GET https://midasapi.energy.ca.gov/api/ValueData?LookupTable={LookupTable}`
-
-**Authorization:** Bearer
-
-**Query Parameters:**
-
-| Name                         | Description                                   | Example | Type   |
-|------------------------------|-----------------------------------------------|---------|--------|
-| LookupTable <br> _required_   | The name of the requested lookup table       | "Energy" | string |
-
-**Body Parameters:** None
-
-**Response Description:**
-
-Rate Information will include the following fields:<br>
-| Name    | Description                                   | Example | Type   |
-|--------|-----------------------------------------------|---------|--------|
-| UploadCode | The code used during rate uploads        | "PG" | string |
-| Description | Human readable description of the code | "Pacific Gas and Electric" | string |
-
-**Python Example**
-
-```python
-import requests
-import json
-
-LookupTable = 'Energy'
-
-headers = {'accept': 'application/json', 'Authorization': "Bearer " + token}
-url = 'https://midasapi.energy.ca.gov/api/valuedata?' + 'LookupTable=' + LookupTable
-pricing_response = requests.get(url, headers = headers)
-response = requests.get(url, headers = headers)
-# Pretty print the JSON response
-print(json.dumps(json.loads(pricing_response.text), indent = 2))
+```
+GET /api/historicaldata/{rate_id}?startdate=YYYY-MM-DD&enddate=YYYY-MM-DD
 ```
 
-## GET Historical Rate Data
+No authentication required. Maximum range: 1 year per request. Get data as old as 2 years from the date of query.
 
-To receive historical information, all accounts may query the GET RIN History Data call. This call is part of the HistoricalData endpoint. Pass a RIN with a parameter that identifies the “startdate” and “enddate” to return historic values for the specified RIN during that timeframe in XML or JSON as specified in the header. Please note, only historic RINs may be used in this call. For example, GHG and Flex Alert RINs use different RINs to access historical values. See [CAISO Flex Alerts](#caiso-flex-alerts) and [SGIP GHG Emissions](#sgip-ghg-emissions) above for details.
+### 5.4 Get Lookup Tables
 
-**Endpoint:** `/HistoricalData`
-
-**HTTP Request:** `GET https://midasapi.energy.ca.gov/api/HistoricalData/{id}?startdate={startdate}&enddate={enddate}`
-
-**Authorization:** Bearer
-
-**Query Parameters:**
-
-| Name                         | Description                                   | Example | Type   |
-|------------------------------|-----------------------------------------------|---------|--------|
-| ID <br> _required_   | The RIN for the requested rate               | "USCA-TSTS-TTOU-TEST" | string |
-| startdate <br> _required_ | Date for start of the time period of interest | "2022-01-01" | string |
-| enddate <br> _required_ | Date for end of the time period of interest | "2022-12-31" | string |
-
-**Body Parameters:** None
-
-**Response Description:** See [GET Values](#get-values) as the structure is identical
-
-**Python Example**
-
-```python
-import requests
-import json
-
-rateID = 'USCA-TSTS-TTOU-TEST'
-startdate = '2023-01-01'
-enddate = '2023-12-31'
-
-headers = {'accept': 'application/json', 'Authorization': "Bearer " + token}
-url = 'https://midasapi.energy.ca.gov/api/historicaldata?id=' + rateID + '&startdate=' + startdate + '&enddate=' + enddate
-list_response = requests.get(url, headers=headers)
-# Pretty print JSON response
-print(json.dumps(json.loads(list_response.text), indent = 2))
+```
+GET /api/valuedata?LookupTable={TableName}
 ```
 
+Available tables: `Distribution`, `Energy`, `StateProvince`, `Unit`, `RateType`, `SignalType`, `DayType`. Note: `Holiday` and `TimeZone` tables have been removed in v2.0.
 
-# Posting Data to MIDAS
+---
 
-_**Only CEC approved accounts may upload data to MIDAS.**_ 
-See [Appendix A](appendix-a.md) for in-depth details on uploading rates to MIDAS.
+## 6. POST Requests — Uploading Data (LSE Users)
+
+### Prerequisites
+
+1. Registered and email-verified account
+2. Upload access approved by CEC for the relevant distribution and energy codes
+3. Valid Bearer token (obtained via `GET /api/token`)
+
+### Upload Rate Data
+
+```
+POST /api/valuedata
+Authorization: Bearer <token>
+Content-Type: application/json
+Body: <ValueData JSON or XML payload>
+```
+
+On success, the API returns **HTTP 202 Accepted** (not 200) with a `jobID`:
+
+```json
+{
+  "message": "Rate data upload accepted and queued for processing",
+  "jobID": "019e4c2d-6906-7cc4-a447-8259d107be54",
+  "status": "PROCESSING",
+  "statusUrl": "https://midasapi.energy.ca.gov/api/jobs/019e4c2d-6906-7cc4-a447-8259d107be54",
+  "createdDateTime": "2026-06-22T21:18:03Z"
+}
+```
+
+**Store the `jobID`.** Use it to poll validation status (see Section 7).
+
+### Upload Rules
+
+- Accepted intervals: `1 hour`, `15 minutes`, `5 minutes` only.
+- Interval assigned on first upload for a RIN — cannot change.
+- All units in a single upload must have the same number of data points and the same interval.
+- Missing values within a unit must be filled with zeros to maintain alignment.
+- Uploading past-dated data is accepted but triggers a warning notification.
+- A gap between the latest data in MIDAS and the earliest timestamp in your upload triggers a gap warning.
+
+---
+
+### 7. Python Examples
+
+Refer to [Appendix g](appendix-g.md) for Python example codes.
+---
+
+## 8. Jobs Endpoint — Tracking Upload Status
+
+After every `POST /api/valuedata`, you receive a `jobID`. Poll the jobs endpoint to get the final validation result.
+
+### How It Works
+
+```
+POST /api/valuedata  →  HTTP 202 + jobID
+         ↓
+MIDAS backend runs full validation asynchronously
+         ↓
+GET /api/jobs/{jobID}  →  PROCESSING | COMPLETE | VALIDATION_FAILED
+```
+
+Jobs are retained for **24 hours** after creation, then automatically deleted.
+
+### Get a Single Job
+
+```
+GET /api/jobs/{jobID}
+Authorization: Bearer <token>
+```
+
+**Status values:**
+
+| Status | Meaning |
+|--------|---------|
+| `PROCESSING` | Validation is still running |
+| `COMPLETE` | Upload accepted and processed successfully |
+| `VALIDATION_FAILED` | Upload rejected — see `validationIssues` |
+
+**Example response — successful upload:**
+
+```json
+{
+  "id": "019e4c2d-6906-7cc4-a447-8259d107be54",
+  "createdDateTime": "2026-06-22T21:18:03Z",
+  "modificationDateTime": "2026-06-22T21:18:45Z",
+  "status": "COMPLETE",
+  "username": "your_username",
+  "uploadFormat": "JSON",
+  "summary": {
+    "rins": [
+      {
+        "rin": "USCA-TSTS-0354-TEST",
+        "units": ["KWH", "KW"],
+        "numTimePeriods": 96,
+        "firstDateTime": "2026-06-23T07:00:00Z",
+        "lastDateTime": "2026-06-27T07:00:00Z"
+      }
+    ],
+    "processingTimeMs": 2530
+  }
+}
+```
+
+**Example response — validation failure:**
+
+```json
+{
+  "id": "019e4c7f-034a-7a8e-a2f3-997135585ff9",
+  "status": "VALIDATION_FAILED",
+  "summary": {
+    "rins": [
+      {
+        "rin": "USCA-TSTS-0354-TEST",
+        "validationIssues": [
+          {
+            "type": "ERROR",
+            "code": "UNEQUAL_INTERVAL",
+            "message": "There are more than one interval length in the data. All interval lengths must be identical, and one of 5, 15, or 60 minutes."
+          },
+          {
+            "type": "WARNING",
+            "code": "MISSING_INTERVAL",
+            "message": "There are one or more missing intervals in the upload."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### List Recent Jobs
+
+```
+GET /api/jobs
+Authorization: Bearer <token>
+```
+
+Optional query parameter: `detailed=true` to include per-RIN summaries in the list response. Results are returned newest-first.
+
+### JobID Format
+
+Job IDs are **UUID version 7** — time-sortable, globally unique identifiers. Format: `019e4c2d-6906-7cc4-a447-8259d107be54`.
+
+---
+
+## 9. OpenADR3 Endpoints
+
+MIDAS v2.0 exposes an OpenADR 3.1-compatible event endpoint for demand response clients.
+
+```
+GET /oadr/events?programID={RIN}
+```
+
+Returns a 72-hour OpenADR 3.1 `EVENT` object for the specified RIN. The `programID` parameter accepts any valid MIDAS RIN.
+
+```json
+{
+  "id": "USCA-FLEX-ALRT-0000_2026-06-22",
+  "eventName": "USCA-FLEX-ALRT-0000_2026-06-22",
+  "programID": "USCA-FLEX-ALRT-0000",
+  "objectType": "EVENT",
+  "intervalPeriod": {
+    "start": "2026-06-22T07:00:00Z",
+    "duration": "PT72H"
+  },
+  "payloadDescriptors": [
+    { "payloadType": "ALERT_FLEX_ALERT" }
+  ],
+  "intervals": [...]
+}
+```
+
+Slots with no stored value are emitted as the sentinel value `-99999`. The `active` query parameter is supported with `true` only (`active=false` returns `501 Not Implemented`).
+
+---
+
+## 10. System Health Endpoints
+
+These endpoints require no authentication and are intended for monitoring.
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /health` | Basic API health check — returns `status`, `service`, `version` |
+| `GET /watttime/status` | Simple up/down for WattTime token service |
+| `GET /watttime/health` | Full WattTime health: token expiry, circuit breaker, cache |
+| `GET /watttime/health/comprehensive` | Health score 0–100, all metrics |
+| `GET /watttime/metrics` | Token refresh rates, latency, circuit breaker activations |
+| `GET /caiso/status` | Simple up/down for CAISO Flex Alert service |
+| `GET /caiso/health` | Full CAISO health: circuit breaker, cache, metrics |
+
+---
+
+## 11. Error Handling
+
+### Standard HTTP Status Codes
+
+| Code | Meaning | Common Cause |
+|------|---------|--------------|
+| `200 OK` | Success | |
+| `202 Accepted` | Upload received and queued | `POST /api/valuedata` |
+| `400 Bad Request` | Invalid parameters | Bad RIN, invalid QueryType |
+| `401 Unauthorized` | Missing or invalid token | Token expired or not provided |
+| `403 Forbidden` | Insufficient permissions | Non-LSE account attempting upload |
+| `404 Not Found` | RIN not found | RIN doesn't exist in MIDAS |
+| `422 Unprocessable Entity` | Validation error | Missing required fields |
+| `503 Service Unavailable` | Upstream dependency down | WattTime or CAISO unavailable |
 
 
-# Example Code
+### Upload Validation Issue Codes
 
-Example code and an R package for working with the MIDAS API.
+| Code | Type | Description |
+|------|------|-------------|
+| `UNEQUAL_INTERVAL` | ERROR | Multiple interval lengths in one upload |
+| `MISSING_INTERVAL` | WARNING | One or more time intervals absent |
+| `INVALID_RIN` | ERROR | RIN not recognized or not authorized |
+| `INTERVAL_MISMATCH` | ERROR | Interval differs from RIN's assigned interval |
+| `DATA_GAP` | WARNING | Gap between latest MIDAS data and upload start |
+| `PAST_DATA` | WARNING | Upload contains timestamps in the past |
 
-## Python
+---
 
-Python language example code for working with MIDAS is available throughout the MIDAS documentation.
+## 12. Rate Limits
 
-## R
+MIDAS is protected by CEC firewall rules and request throttling. Exceeding the rate limit returns HTTP `429 Too Many Requests`. If you receive `429` errors regularly, contact midas@energy.ca.gov to discuss your use case.
 
-Repository for installable R language package for working with MIDAS: <https://github.com/stefwayland/cecmidas>
- *This repository is not maintained or supported by the CEC.*
-
+---
 
 # Appendices
 
@@ -519,3 +508,11 @@ Repository for installable R language package for working with MIDAS: <https://g
 ## Appendix E MIDAS Data Dictionary
 
 [Appendix E](appendix-e.md) contains the description of the data dictionary and a link to download it.
+
+## Appendix F SGIP and FlexAlert RIN mapping in MIDAS
+
+[Appendix F](appendix-f.md) contains the WattTime's SGIP and CAISO's FlexAlert RIN mapping in MIDAS
+
+## Appendix G Python Code Examples
+
+[Appendix G](appendix-g.md) contains example codes in MIDAS to upload data to MIDAS and access MIDAS data
