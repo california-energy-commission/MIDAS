@@ -1,8 +1,10 @@
 # MIDAS v1.0 → v2.0 Transition Guide
 
-**Applies to:** All existing MIDAS users migrating from v1.0 to v2.0
-**Release Date:** June 22, 2026
-**Contact:** midas@energy.ca.gov
+**Applies to:** All existing MIDAS users migrating from v1.0 to v2.0 
+
+**Release Date:** June 22, 2026 
+
+**Contact:** midas@energy.ca.gov 
 
 ---
 
@@ -12,6 +14,27 @@ This guide walks through every change that requires action before June 22, 2026.
 
 Not sure what role applies to you? If you only query MIDAS data, you are a GET user. If you submit rate data on behalf of a utility or CCA, you are a POST user. Some teams are both.
 
+---
+
+## Table of Contents
+
+1. [Changes for GET Users (Data Consumers)](#part-1--changes-for-get-users-data-consumers)
+   - [Step 1.1 — Token is now optional for GET requests](#step-11--token-is-now-optional-for-get-requests)
+   - [Step 1.2 — Update GHG RINs](#step-12--update-ghg-rins)
+   - [Step 1.3 — Update GHG unit handling (kg → g)](#step-13--update-ghg-unit-handling-kg--g)
+   - [Step 1.4 — Update Flex Alert RINs](#step-14--update-flex-alert-rins)
+   - [Step 1.5 — Update RINList response parsing](#step-15--update-rinlist-response-parsing)
+   - [Step 1.6 — Query window changes](#step-16--query-window-changes)
+   - [Step 1.7 — Removed endpoints](#step-17--removed-endpoints)
+     
+2. [Changes for POST Users (LSE Uploaders)](#part-2--changes-for-post-users-lse-uploaders)
+   - [Step 2.1 — Re-register](#step-21--re-register)
+   - [Step 2.2 — Request upload access](#step-22--request-upload-access)
+   - [Step 2.3 — Handle the new upload response](#step-23--handle-the-new-upload-response)
+   - [Step 2.4 — Poll the Jobs endpoint instead of waiting for email](#step-24--poll-the-jobs-endpoint-instead-of-waiting-for-email)
+   - [Step 2.5 — Update token expiry logic](#step-25--update-token-expiry-logic)
+   - [Step 2.6 — Validate your upload interval consistency](#step-26--validate-your-upload-interval-consistency)
+  
 ---
 
 ## Part 1 — Changes for GET Users (Data Consumers)
