@@ -1,5 +1,7 @@
 # Market Informed Demand Automation Server (MIDAS) — v2.0 Documentation
 ============================================================== 
+<br> 
+
 *California Energy Commission | midas@energy.ca.gov*
 
 ---
