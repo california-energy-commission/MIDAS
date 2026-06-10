@@ -288,7 +288,7 @@ On success, the API returns **HTTP 202 Accepted** (not 200) with a `jobID`:
 }
 ```
 
-**Store the `jobID`.** Use it to poll validation status (see Section 7).
+**Store the `jobID`.** Use it to poll validation status (see Section 8).
 
 ### Upload Rules
 
