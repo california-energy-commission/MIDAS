@@ -515,4 +515,4 @@ MIDAS is protected by CEC firewall rules and request throttling. Exceeding the r
 
 ## Appendix G Python Code Examples
 
-[Appendix F](appendix-f.md) contains example codes in MIDAS to upload data to MIDAS and access MIDAS data
+[Appendix G](appendix-g.md) contains example codes in MIDAS to upload data to MIDAS and access MIDAS data
