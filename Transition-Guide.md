@@ -41,19 +41,19 @@ Not sure what role applies to you? If you only query MIDAS data, you are a GET u
 
 ### Checklist
 
-- [ ] Remove token calls for public GET requests (optional, but simplifies code)
+- [ ] Remove token calls or authorization for public GET requests (no registration or account needed to access MIDAS data)
 - [ ] Update the `USCA-SGIP-SGRT/SGFC/SGHT` RINs to `USCA-SGIP-MOER-{REGION}`
 - [ ] Update `USCA-FLEX-FXRT/FXFC/FXHT` RINs to `USCA-FLEX-ALRT-0000`
 - [ ] Multiply GHG thresholds, stored values, and chart axes by 1,000 (kg → g)
 - [ ] Update any code that parses the RINList response (now a keyed object)
 - [ ] Update `alldata` integrations if you depend on specific window size (now 90 days)
-- [ ] Remove any calls to `HistoricalRINList`, `Holiday`, or `TimeZone` lookup tables
+- [ ] Remove any calls to `HistoricalRINList`, `Holiday`, or `TimeZone` endpoints/lookup tables
 
 ---
 
 ### Step 1.1 — Token is now optional for GET requests
 
-In v2.0, the following endpoints are **publicly accessible without a token**:
+In v2.0, the following endpoints are **publicly accessible without a token or authorization**:
 
 ```
 GET /api/valuedata?SignalType=N
@@ -82,16 +82,7 @@ All `SGRT`, `SGFC`, and `SGHT` RINs are gone. Calling them returns `410 Gone`. R
 | `USCA-SGIP-SGRT-PGE` | `USCA-SGIP-MOER-PGE` + `realtime` |
 | `USCA-SGIP-SGFC-PGE` | `USCA-SGIP-MOER-PGE` + `realtime` |
 | `USCA-SGIP-SGHT-PGE` | `USCA-SGIP-MOER-PGE` + `alldata` |
-| `USCA-SGIP-SGRT-SCE` | `USCA-SGIP-MOER-SCE` + `realtime` |
-| `USCA-SGIP-SGFC-SCE` | `USCA-SGIP-MOER-SCE` + `realtime` |
-| `USCA-SGIP-SGHT-SCE` | `USCA-SGIP-MOER-SCE` + `alldata` |
-| `USCA-SGIP-SGRT-SMUD` | `USCA-SGIP-MOER-SMUD` + `realtime` |
-| `USCA-SGIP-SGFC-SMUD` | `USCA-SGIP-MOER-SMUD` + `realtime` |
-| `USCA-SGIP-SGHT-SMUD` | `USCA-SGIP-MOER-SMUD` + `alldata` |
-| `USCA-SGIP-SGRT-LADWP` | `USCA-SGIP-MOER-LADWP` + `realtime` |
-| `USCA-SGIP-SGFC-LADWP` | `USCA-SGIP-MOER-LADWP` + `realtime` |
-| `USCA-SGIP-SGHT-LADWP` | `USCA-SGIP-MOER-LADWP` + `alldata` |
-| *(repeat for TID, IID, NVENERGY, WALC, P2)* | *(same pattern)* |
+| *(repeat for SCE, SMUD, LADWP, TID, IID, NVENERGY, WALC, P2)* | *(same pattern)* |
 
 Full mapping table in [Appendix A](appendix-a.md).
 
@@ -176,7 +167,7 @@ The key name reflects the signal type: `"Rates"` for electricity rates, `"GHGEmi
 | `realtime` | Single current value (GHG) or pass-through (Flex Alert) | 72-hour window from midnight Pacific on request date |
 | `alldata` | No defined cap | 90-day window ending at 23:59:59 Pacific on Day+2 |
 
-If your application depends on a specific window size, update your downstream logic. For data older than 90 days, use `GET /api/historicaldata/{rate_id}` with explicit `startdate`/`enddate` parameters.
+If your application depends on a specific window size, update your downstream logic. For data older than 90 days, use `GET /api/historicaldata/{rate_id}` with explicit `startdate`/`enddate` parameters. The historicaldata query is limited to request 6 months of data at a time.
 
 ---
 
@@ -185,6 +176,7 @@ If your application depends on a specific window size, update your downstream lo
 Remove any calls to the following — they no longer exist in v2.0:
 
 - `GET /api/historicallist` (HistoricalRINList) — no replacement
+- - `GET /api/Holiday` (Holiday) — no replacement
 - `GET /api/valuedata?LookupTable=Holiday` — no replacement
 - `GET /api/valuedata?LookupTable=TimeZone` — no replacement
 
@@ -201,9 +193,8 @@ Remove any calls to the following — they no longer exist in v2.0:
 - [ ] Update upload code to handle HTTP 202 (not 200) on success
 - [ ] Store `jobID` from upload response
 - [ ] Implement job polling logic (`GET /api/jobs/{jobID}`)
-- [ ] Remove email-based status polling from your workflow
 - [ ] Update token refresh logic (now 3,600s expiry)
-- [ ] Verify interval consistency in upload payloads
+- [ ] Verify interval consistency and all validations in upload payloads
 
 ---
 
@@ -298,7 +289,7 @@ else:
             print(f"{issue['type']} [{issue['code']}]: {issue['message']}")
 ```
 
-**Important:** Jobs are retained for 24 hours. If you do not poll within that window, the job record is deleted. Store the `jobID` persistently if you need it for reconciliation.
+**Important:** Jobs are retained for 1 week. If you do not poll within that window, the job record is deleted. Store the `jobID` persistently if you need it for reconciliation.
 
 ---
 
@@ -347,7 +338,7 @@ def validate_upload_consistency(rate_data: list) -> bool:
 
 ## Part 3 — Base URL
 
-The test-environment base URL used in pre-release materials (`https://i7k3zmg44f.us-west-2.awsapprunner.com`) is no longer active. All calls must go to:
+All calls must go to:
 
 ```
 https://midasapi.energy.ca.gov
@@ -362,7 +353,7 @@ Update any hardcoded URLs or environment variables in your deployment configurat
 | Date | Event |
 |------|-------|
 | Before June 22, 2026 | Update GET integrations (RINs, unit handling, response parsing) |
-| **June 22, 2026** | **Complete re-registration and upload access request** |
+| **On or Before June 22, 2026** | **Complete re-registration and upload access request** |
 | **June 22, 2026** | **MIDAS v2.0 goes live.** |
 
 ---
