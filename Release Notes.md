@@ -38,8 +38,6 @@ The 33 SGIP GHG RINs (11 regions × 3 types: SGRT/SGFC/SGHT) have been replaced 
 | `USCA-SGIP-SGFC-{REGION}` | `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` |
 | `USCA-SGIP-SGHT-{REGION}` | `USCA-SGIP-MOER-{REGION}` with `QueryType=alldata` |
 
-Deprecated RINs return `410 Gone`.
-
 ### BC-3 — Flex Alert RIN Consolidation (3 → 1 RIN)
 
 Three Flex Alert RINs replaced by one unified RIN.
@@ -49,8 +47,6 @@ Three Flex Alert RINs replaced by one unified RIN.
 | `USCA-FLEX-FXRT-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=realtime` |
 | `USCA-FLEX-FXFC-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=realtime` |
 | `USCA-FLEX-FXHT-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=alldata` |
-
-Deprecated RINs return `410 Gone`. (`USCA-FLEX-FXHT-0000` was previously non-functional.)
 
 ### BC-4 — RINList Response Structure Changed
 
@@ -63,12 +59,12 @@ The `GET /api/valuedata?SignalType=N` response is now a keyed object instead of 
 
 **v2.0:**
 ```json
-{ "Rates": [{ "RateID": "...", "SignalType": "Electricity Rates", "Description": "..." }] }
+{ "Rates": [{ "RateID": "...", "SignalType": "Electricity Rates", "Description": "...", "LastUpdated": "DateTime" }] }
 ```
 
 ### BC-5 — Upload Response Changed: 200 → 202, New `jobID` Field
 
-`POST /api/valuedata` now returns `HTTP 202 Accepted` (previously `200 OK`) with a `jobID` field. The `sqsMessageId` field previously returned is removed.
+`POST /api/valuedata` now returns `HTTP 202 Accepted` (previously `200 OK`) with a `jobID` field.
 
 ### BC-6 — LSE Re-Registration Required
 
@@ -79,7 +75,7 @@ All existing LSE upload accounts must re-register and go through the new upload-
 The following endpoints are removed with no replacement:
 
 - `GET /api/historicallist` (`HistoricalRINList`)
-- `Holiday` lookup table (via `GET /api/valuedata?LookupTable=Holiday`)
+- `GET /api/Holiday` (`Holiday`)
 - `TimeZone` lookup table (via `GET /api/valuedata?LookupTable=TimeZone`)
 
 ---
@@ -88,30 +84,26 @@ The following endpoints are removed with no replacement:
 
 ### NF-1 — Jobs Endpoint for Upload Tracking
 
-Two new endpoints replace email-based upload status notifications:
+Two new endpoints for tracking uploads:
 
-- `GET /api/jobs` — Lists all upload jobs from the last 24 hours for the authenticated user, newest first.
+- `GET /api/jobs` — Lists all upload jobs from the last 7 days for the authenticated user, newest first.
 - `GET /api/jobs/{jobID}` — Returns full processing detail for one upload, including per-RIN validation issues.
 
 Job statuses: `PROCESSING`, `COMPLETE`, `VALIDATION_FAILED`.
 
 Job IDs are UUID v7 — time-sortable and guaranteed unique.
 
-### NF-2 — OpenADR 3.1 Endpoint
-
-New endpoint for OpenADR-compatible demand response clients:
-
-- `GET /oadr/events?programID={RIN}` — Returns a 72-hour OpenADR 3.1 `EVENT` object for any MIDAS RIN.
-
-### NF-3 — Self-Service Upload Access Request
+### NF-2 — Self-Service Upload Access Request
 
 LSEs can now request upload authorization directly through the API:
 
 - `POST /api/uploadaccess/request` — Submits a request for upload access for a specific energy/distribution code pair.
 
-A CEC admin approves requests via `POST /admin/approvelseaccess`. Accounts can hold multiple energy codes and distribution codes simultaneously.
+A CEC admin approves requests via `POST /admin/approvelseaccess`.  
 
-### NF-4 — WattTime and CAISO Health Endpoints
+Note: Accounts can hold multiple energy codes and distribution codes simultaneously.
+
+### NF-3 — WattTime and CAISO Health Endpoints
 
 New health and monitoring endpoints for operational visibility:
 
@@ -119,7 +111,7 @@ New health and monitoring endpoints for operational visibility:
 - `/watttime/metrics`, `/watttime/status`
 - `/caiso/health`, `/caiso/status`
 
-### NF-5 — System Root and Health Endpoints
+### NF-4 — System Root and Health Endpoints
 
 - `GET /` — API root with version and navigation links.
 - `GET /health` — Standard health check for load balancer and monitoring integration.
@@ -142,7 +134,7 @@ MIDAS v2.0 is running on upgraded AWS compute and storage. The application layer
 
 ### IM-2 — No Registration Required for GET Requests
 
-All public read endpoints (`GET /api/valuedata` with `SignalType` or `ID+QueryType`) are now unauthenticated. Token-based access is only required for uploads, lookup tables, jobs, and holiday management.
+All public read endpoints (`GET /api/valuedata` with `SignalType` or `ID+QueryType` or `LookupTable`) are now unauthenticated. Token-based access is only required for uploads and jobs endpoint.
 
 ### IM-3 — Extended Token Lifetime
 
@@ -156,30 +148,25 @@ A single LSE account may now be authorized for multiple distribution codes and m
 
 Uploads now receive immediate feedback on basic structural validity (stage 1, synchronous) followed by asynchronous deep validation (stage 2). The Jobs endpoint surfaces the results of both stages.
 
-### IM-6 — Data Retention Extended
-
-Total retention extended to 7 years:
+### IM-6 — Data Retention
 
 - 2 years: Active, accessible via API
-- Years 2–5: Cold storage archive (contact midas@energy.ca.gov for access)
+- Years 2–7: Cold storage archive (contact midas@energy.ca.gov for access) - CEC is planning to automate this in future upgrades
 - Older than 7 years: On request from CEC
 
 ### IM-7 — Interval Validation Enforced
 
 Uploads are validated against the interval assigned to a RIN at first upload. Disallowed intervals (anything other than 5 minutes, 15 minutes, or 1 hour) are rejected. Cross-unit consistency within an upload is also enforced.
 
----
+### IM-8 — Improved Error Description 
 
-## Known Issues at Release
-
-- `active=false` on the `GET /oadr/events` endpoint returns `501 Not Implemented`. This parameter will be supported in a future release.
-- The `detailed` parameter on `GET /api/jobs` is currently limited to RIN-level summaries. Per-unit breakdowns will be added in a future release.
+This upgrade returns better human readable detailed messages for users when an error occurs. 
 
 ---
 
 ## Deprecations
 
-The following are deprecated as of v2.0 and will be removed in a future version. They currently return `410 Gone`.
+The following are deprecated as of v2.0 and will be removed in a future version.
 
 - All `USCA-SGIP-SGRT-*` RINs
 - All `USCA-SGIP-SGFC-*` RINs
