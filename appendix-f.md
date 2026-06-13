@@ -74,8 +74,6 @@ Each response contains **one row per 5-minute interval**, with the CO2 emissions
 | `USCA-SGIP-SGFC-XXXX` | `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` |
 | `USCA-SGIP-SGHT-XXXX` | `USCA-SGIP-MOER-{REGION}` with `QueryType=alldata` or `/api/HistoricalData` |
 
-Calls to deprecated RINs will return `410 Gone` with a message pointing to the canonical RIN and suggested `QueryType`. Deprecated RINs will remain visible in `GET /HistoricalRINList` only when `includeDeprecated=true` is passed.
-
 ---
 
 ### New RINs: `USCA-SGIP-MOER-{REGION}`
