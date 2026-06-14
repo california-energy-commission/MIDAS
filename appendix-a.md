@@ -1,10 +1,10 @@
 # Appendix A - Uploading to MIDAS
 
-Only CEC approved entities can upload to MIDAS. After establishing a MIDAS account by registering through the `registration` API endpoint and verifying your email, request upload capabilities by sending an email to midas@energy.ca.gov from your LSE email account. The email must come from a utility or CCA account, and should include the information you used when creating the account in MIDAS. CEC staff will review your request and respond.
+Only CEC approved entities can upload to MIDAS. After establishing a MIDAS account by registering through the `registration` API endpoint and verifying your email, request upload capabilities through the `uploadaccess/request` API endpoint with your LSE account username. If you do not receive a confirmation email for the granted access, please reach out by email at midas@energy.ca.gov. CEC staff will review your request and respond.
 
-Note: Utilities may be assigned either distribution or energy company access to MIDAS. These assignments change what rates the user is allowed to upload.
+Note: Utilities may be assigned distribution and energy company access to MIDAS. These assignments change what rates the user is allowed to upload.
 
-## Rate and Holiday Upload Support
+## Rate Upload Support
 
 LSEs are encouraged to reach out to CEC staff at midas@energy.ca.gov with any questions or issues with MIDAS. Staff will do their best to answer any questions and address issues quickly.
 
