@@ -9,6 +9,8 @@ MIDAS API Swagger Documentation: [MIDAS API Swagger](https://i7k3zmg44f.us-west-
 > **Release Notice — June 22, 2026**  
 > MIDAS v2.0 is live as of June 22, 2026. If you are migrating from v1.0, please read the [Transition Guide](transition-guide.md) before making any API calls. The base URL for the production system is **https://midasapi.energy.ca.gov**. All test-environment URLs referenced in pre-release materials will not be active after July, 2026.
 
+> MIDAS 1.0 documentation is preserved at the [MIDAS v1.0 Documentation](https://github.com/california-energy-commission/MIDAS/releases/tag/v1.0) on the official CEC repository.
+
 ---
 
 ---
