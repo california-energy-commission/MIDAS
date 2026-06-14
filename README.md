@@ -309,7 +309,7 @@ On success, the API returns **HTTP 202 Accepted** (not 200) with a `jobID`:
 
 ## 7. Python Examples
 
-Refer to [Appendix g](appendix-g.md) for Python example codes.
+Refer to [Appendix G](appendix-g.md) for Python example codes.
 
 ---
 
