@@ -31,7 +31,7 @@ Not sure what role applies to you? If you only query MIDAS data, you are a GET u
    - [Step 2.1 — Re-register](#step-21--re-register)
    - [Step 2.2 — Request upload access](#step-22--request-upload-access)
    - [Step 2.3 — Handle the new upload response](#step-23--handle-the-new-upload-response)
-   - [Step 2.4 — Poll the Jobs endpoint instead of waiting for email](#step-24--poll-the-jobs-endpoint-instead-of-waiting-for-email)
+   - [Step 2.4 — Poll the Jobs endpoint](#step-24--poll-the-jobs-endpoint)
    - [Step 2.5 — Update token expiry logic](#step-25--update-token-expiry-logic)
    - [Step 2.6 — Validate your upload interval consistency](#step-26--validate-your-upload-interval-consistency)
   
@@ -254,7 +254,7 @@ if response.status_code == 202:
 
 ---
 
-### Step 2.4 — Poll the Jobs endpoint instead of waiting for email
+### Step 2.4 — Poll the Jobs endpoint
 
 The v2.0 upload workflow is fully programmatic. After receiving a `jobID`, poll `GET /api/jobs/{jobID}` to check validation status.
 
