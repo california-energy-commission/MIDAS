@@ -2,8 +2,6 @@
 
 ### California Energy Commission | midas@energy.ca.gov  
 
-MIDAS API Swagger Documentation: [MIDAS API Swagger](https://i7k3zmg44f.us-west-2.awsapprunner.com/docs#/)
-
 ---
 
 > **Release Notice — June 22, 2026**  
