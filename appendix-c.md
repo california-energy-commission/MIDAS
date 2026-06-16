@@ -7,7 +7,6 @@ Day Type Table: Contains a single number Day Type Code choice with the name of e
 Distribution Table: Contains the two-letter code for each distribution company in California with the name of each distribution company describing each code. <br>
 End Use Table: Contains the code relevant to each end use, up to 10 letters with a description describing each end use. <br>
 Energy Table: Contains the two-letter code for each energy company in California with the name of each energy company describing each code. <br>
-Holiday Table: Contains holidays defined and uploaded by distribution and energy companies. <br>
 Location Table: Contains the 1 to 10-character code relevant to each location with a description of each code. <br>
 Rate Type Table: Contains the Rate Type Code, up to 10 characters, options applicable to each company’s rates with a description of each rate. <br>
 Sector Table: Contains the three-letter code for the sector relevant to each value with a description for each sector. <br>
