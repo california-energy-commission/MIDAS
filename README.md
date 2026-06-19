@@ -1,16 +1,19 @@
 # Market Informed Demand Automation Server (MIDAS) — v2.0 Documentation 
 
-### California Energy Commission | midas@energy.ca.gov  
+### California Energy Commission | midas@energy.ca.gov
 
 ---
 
-> **Release Notice — June 22, 2026**  
+> **Release Notice — June 22, 2026**
 > MIDAS v2.0 is live as of June 22, 2026. If you are migrating from v1.0, please read the [Transition Guide](transition-guide.md) before making any API calls. The base URL for the production system is **https://midasapi.energy.ca.gov**. All test-environment URLs referenced in pre-release materials will not be active after July, 2026.
 
---- 
-![](https://img.shields.io/badge/Note-MIDAS%201.0%20docs%20preserved-red)  
+---
+
+![](https://img.shields.io/badge/Note-MIDAS%201.0%20docs%20preserved-red) 
+
 > MIDAS 1.0 documentation is preserved at the [MIDAS v1.0 Documentation](https://github.com/california-energy-commission/MIDAS/releases/tag/v1.0) on the official CEC repository.
---- 
+
+---
 
 ## Table of Contents
 
@@ -20,7 +23,7 @@
 4. [Authentication](#4-authentication)
 5. [GET Requests — Retrieving Data](#5-get-requests--retrieving-data)
 6. [POST Requests — Uploading Data (LSE Users)](#6-post-requests--uploading-data-lse-users)
-7. [Python Examples](#7-Python-Examples) 
+7. [Python Examples](#7-Python-Examples)
 8. [Jobs Endpoint — Tracking Upload Status](#8-jobs-endpoint--tracking-upload-status)
 9. [System Health Endpoints](#9-system-health-endpoints)
 10. [Error Handling](#10-error-handling)
@@ -51,7 +54,7 @@ MIDAS was developed to support the CEC's [Load Management Standards](https://www
 
 **Supported formats:** JSON and XML (XML payloads are accepted for uploads and are converted internally)
 
-**API version:** 2.0 
+**API version:** 2.0
 
 ### Security
 
@@ -120,7 +123,7 @@ See [Appendix F](appendix-f.md) for the full FlexAlert RIN mapping and complete 
 ### Data Retention
 
 | Tier | Window | Access Method |
-|------|--------|---------------|
+| ------ | -------- | --------------- |
 | Active | 2 years | MIDAS API (`realtime`, `alldata`, `historicaldata`) |
 | Archive | Years 2–7 | Cold storage — contact midas@energy.ca.gov |
 | Legacy | Older than 7 years | Request from CEC at midas@energy.ca.gov |
@@ -193,11 +196,11 @@ POST /api/resendverification?username=<username>
 
 Returns all RINs of a given signal type.  
 | Signal Type | Description |
-|------|--------|
-| 0 | ALL active RINs | 
-| 1 | All active electricity rate RINs  | 
-| 2 | All GHG EMission RINs | 
-| 3 | Flex ALert RIN | 
+| ------ | -------- |
+| 0 | ALL active RINs |
+| 1 | All active electricity rate RINs  |
+| 2 | All GHG EMission RINs |
+| 3 | Flex ALert RIN |
 
 ```
 GET /api/valuedata?SignalType={0|1|2|3}
@@ -225,7 +228,7 @@ GET /api/valuedata?ID={RIN}&QueryType={realtime|alldata}
 ```
 
 | QueryType | Window |
-|-----------|--------|
+| ----------- | -------- |
 | `realtime` | 72 hours from midnight Pacific on the request date |
 | `alldata` | 90 days ending at 23:59:59 Pacific on Day+2 |
 
@@ -325,7 +328,7 @@ MIDAS backend runs full validation asynchronously
 GET /api/jobs/{jobID}  →  PROCESSING | COMPLETE | VALIDATION_FAILED
 ```
 
-Job retention supports a configurable TTL (currently retained for 7 days), then automatically deleted. 
+Job retention supports a configurable TTL (currently retained for 7 days), then automatically deleted.
 
 ### Get a Single Job
 
@@ -337,7 +340,7 @@ Authorization: Bearer <token>
 **Status values:**
 
 | Status | Meaning |
-|--------|---------|
+| ------ | ------- |
 | `PROCESSING` | Validation is still running |
 | `COMPLETE` | Upload accepted and processed successfully |
 | `VALIDATION_FAILED` | Upload rejected — see `validationIssues` |
@@ -415,7 +418,7 @@ Job IDs are **UUID version 7** — time-sortable, globally unique identifiers. F
 These endpoints require no authentication and are intended for monitoring.
 
 | Endpoint | Description |
-|----------|-------------|
+| -------- | ----------- |
 | `GET /health` | Basic API health check — returns `status`, `service`, `version` |
 | `GET /watttime/status` | Simple up/down for WattTime token service |
 | `GET /watttime/health` | Full WattTime health: token expiry, circuit breaker, cache |
@@ -431,7 +434,7 @@ These endpoints require no authentication and are intended for monitoring.
 ### Standard HTTP Status Codes
 
 | Code | Meaning | Common Cause |
-|------|---------|--------------|
+| ---- | ------- | ------------ |
 | `200 OK` | Success | |
 | `202 Accepted` | Upload received and queued | `POST /api/valuedata` |
 | `400 Bad Request` | Invalid parameters or Validation Error | Bad RIN, invalid QueryType, Data Invalid |
@@ -441,11 +444,10 @@ These endpoints require no authentication and are intended for monitoring.
 | `422 Unprocessable Entity` | Validation error | Missing required fields |
 | `503 Service Unavailable` | Upstream dependency down | WattTime or CAISO unavailable |
 
-
 ### Upload Validation Issue Codes
 
 | Code | Type | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 | `UNEQUAL_INTERVAL` | ERROR | Multiple interval lengths in one upload |
 | `MISSING_INTERVAL` | WARNING | One or more time intervals absent |
 | `INVALID_RIN` | ERROR | RIN not recognized or not authorized |

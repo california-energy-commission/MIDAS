@@ -1,13 +1,12 @@
 # MIDAS API v2.0 — Release Notes
 
-**Release Date:** June 22, 2026 
+**Release Date:** June 22, 2026
 
-**Version:** 2.0 
+**Version:** 2.0.0
 
-**Previous Version:** 1.0 
+**Previous Version:** 1.0
 
-**Contact:** midas@energy.ca.gov 
-
+**Contact:** <midas@energy.ca.gov>
 
 ---
 
@@ -33,7 +32,7 @@ All SGIP GHG emissions values are now reported in **grams per kilowatt-hour** (`
 The 33 SGIP GHG RINs (11 regions × 3 types: SGRT/SGFC/SGHT) have been replaced by 11 MOER RINs — one per region.
 
 | Deprecated Pattern | Replacement |
-|---|---|
+| --- | --- |
 | `USCA-SGIP-SGRT-{REGION}` | `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` |
 | `USCA-SGIP-SGFC-{REGION}` | `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` |
 | `USCA-SGIP-SGHT-{REGION}` | `USCA-SGIP-MOER-{REGION}` with `QueryType=alldata` |
@@ -43,7 +42,7 @@ The 33 SGIP GHG RINs (11 regions × 3 types: SGRT/SGFC/SGHT) have been replaced 
 Three Flex Alert RINs replaced by one unified RIN.
 
 | Deprecated RIN | Replacement |
-|---|---|
+| --- | --- |
 | `USCA-FLEX-FXRT-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=realtime` |
 | `USCA-FLEX-FXFC-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=realtime` |
 | `USCA-FLEX-FXHT-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=alldata` |
@@ -53,11 +52,13 @@ Three Flex Alert RINs replaced by one unified RIN.
 The `GET /api/valuedata?SignalType=N` response is now a keyed object instead of a bare array.
 
 **v1.0:**
+
 ```json
 [{ "RateID": "...", "SignalType": "Rates", "Description": "..." }]
 ```
 
 **v2.0:**
+
 ```json
 { "Rates": [{ "RateID": "...", "SignalType": "Electricity Rates", "Description": "...", "LastUpdated": "DateTime" }] }
 ```
@@ -151,16 +152,16 @@ Uploads now receive immediate feedback on basic structural validity (stage 1, sy
 ### IM-6 — Data Retention
 
 - 2 years: Active, accessible via API
-- Years 2–7: Cold storage archive (contact midas@energy.ca.gov for access) - CEC is planning to automate this in future upgrades
+- Years 2–7: Cold storage archive (contact <midas@energy.ca.gov> for access) - CEC is planning to automate this in future upgrades
 - Older than 7 years: On request from CEC
 
 ### IM-7 — Interval Validation Enforced
 
 Uploads are validated against the interval assigned to a RIN at first upload. Disallowed intervals (anything other than 5 minutes, 15 minutes, or 1 hour) are rejected. Cross-unit consistency within an upload is also enforced.
 
-### IM-8 — Improved Error Description 
+### IM-8 — Improved Error Description
 
-This upgrade returns better human readable detailed messages for users when an error occurs. 
+This upgrade returns better human readable detailed messages for users when an error occurs.
 
 ---
 
@@ -179,7 +180,7 @@ The following are deprecated as of v2.0 and will be removed in a future version.
 
 ## Support
 
-Contact the MIDAS team at **midas@energy.ca.gov** for questions, issue reports, or to request access to archived data older than 2 years.
+Contact the MIDAS team at **<midas@energy.ca.gov>** for questions, issue reports, or to request access to archived data older than 2 years.
 
 ---
 
