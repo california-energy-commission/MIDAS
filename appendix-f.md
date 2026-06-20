@@ -5,57 +5,48 @@
 1. [SGIP GHG Emissions RIN Consolidation: `USCA-SGIP-MOER-{REGION}`](#1-sgip-ghg-emissions-rin-consolidation-usca-sgip-moer-region)
 2. [Flex Alert RIN Consolidation: `USCA-FLEX-ALRT-0000`](#2-flex-alert-rin-consolidation-usca-flex-alrt-0000)
 
-<br> 
-
 ## 1. SGIP GHG Emissions RIN Consolidation: `USCA-SGIP-MOER-{REGION}`
 
-**Component:** MIDAS API / ValueData & HistoricalData 
-**Related Repo:** [california-energy-commission/MIDAS](https://github.com/california-energy-commission/MIDAS) 
-
----
-
-### Summary
+**Component:** MIDAS API / ValueData & HistoricalData
+**Related Repo:** [california-energy-commission/MIDAS](https://github.com/california-energy-commission/MIDAS)
 
 Today, MIDAS exposes SGIP GHG emissions data through **33 separate RINs** — real-time, forecast, and historical variants for each of 11 California grid regions. Consumers have had to call different RINs depending on which time window they needed, and the real-time RIN returned only a single data point rather than a usable time series.
 
 We're replacing all 33 RINs with **11 region-specific RINs** — one per grid region — each delivering GHG emissions as a continuous, predictable 5-minute signal using the same endpoint contract as all other MIDAS rate signals.
-
----
 
 ### ⚠️ Breaking Change: Unit of Measure — `kg/kWh CO2` → `g/kWh CO2`
 
 As part of this update, the unit for all SGIP GHG emissions values is changing from **kilograms per kilowatt-hour** (`kg/kWh CO2`) to **grams per kilowatt-hour** (`g/kWh CO2`).
 
 | | Previous | New |
-|---|---|---|
+| --- | --- | --- |
 | `Unit` field | `kg/kWh CO2` | `g/kWh CO2` |
 | Example value | `0.345` | `345.0` |
 | Scale factor | — | × 1,000 |
 
 **Action required for all consumers:** Any application that reads the `Value` field from SGIP GHG RINs must update its logic to account for the new scale. Comparisons, thresholds, charts, and stored data based on the old kg values will be incorrect without this update.
 
----
-
 ### Background / Previous Behavior
 
 MIDAS previously included **three RIN families** for SGIP GHG data, each spanning 11 regions (33 RINs total):
 
 | RIN Pattern | Code Meaning | Behavior |
-|---|---|---|
+| --- | --- | --- |
 | `USCA-SGIP-SGRT-XXXX` | **SGRT** = SGIP Real-Time | Returned **only one data point** — the current CO2 level for the region at query time |
 | `USCA-SGIP-SGFC-XXXX` | **SGFC** = SGIP Forecast | Returned forecasted CO2 levels at 5-minute intervals from the WattTime API |
 | `USCA-SGIP-SGHT-XXXX` | **SGHT** = SGIP Historic | Returned previously observed values; once a real-time value was superseded, it was moved to the `HistoricalData` table and retrievable here |
 
 All data originated from the [WattTime SGIP Signal API](https://sgipsignal.com/). Consumers had to combine calls across all three RIN families to assemble a complete past-through-future emissions picture for any region.
 
----
+> [!NOTE]
+> Due to GHG RIN changes from MIDAS 1.0 to 2.0, historical GHG data prior to June 2026 was not migrated and is no longer available in MIDAS. All historical SGIP data is available in CSV format from <https://content.sgipsignal.com/download-data/>
 
 ### What End Users Will See
 
 #### One RIN per region, two query types — same as every other MIDAS rate signal
 
 | Question the consumer is asking | API call |
-|---|---|
+| --- | --- |
 | What are the GHG emissions for today through the next two days? | `GET /api/ValueData?ID=USCA-SGIP-MOER-{REGION}&QueryType=realtime` |
 | What were the GHG emissions over the past 90 days? | `GET /api/ValueData?ID=USCA-SGIP-MOER-{REGION}&QueryType=alldata` |
 | What were the GHG emissions for a specific time range? | `GET /api/HistoricalData?ID=USCA-SGIP-MOER-{REGION}&startdate={date}&enddate={date}` |
@@ -64,17 +55,13 @@ All data originated from the [WattTime SGIP Signal API](https://sgipsignal.com/)
 
 Each response contains **one row per 5-minute interval**, with the CO2 emissions value for that period in `g/kWh CO2`. The `realtime` response seamlessly blends observed historical data, the latest real-time reading, and WattTime forecast data into a single unbroken time series.
 
----
+### Previous RINs Retired
 
-### Previous RINs Will Retire
-
-| Deprecated RIN Pattern | Recommended Replacement |
-|---|---|
+| Retired RIN Pattern | Recommended Replacement |
+| --- | --- |
 | `USCA-SGIP-SGRT-XXXX` | `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` |
 | `USCA-SGIP-SGFC-XXXX` | `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` |
 | `USCA-SGIP-SGHT-XXXX` | `USCA-SGIP-MOER-{REGION}` with `QueryType=alldata` or `/api/HistoricalData` |
-
----
 
 ### New RINs: `USCA-SGIP-MOER-{REGION}`
 
@@ -83,7 +70,7 @@ Each response contains **one row per 5-minute interval**, with the CO2 emissions
 #### Region Reference Table and MIDAS 1.0 -> 2.0 RIN Mapping
 
 | Utility / Region | WattTime `ba` Code | MIDAS 2.0 RIN | MIDAS 1.0 RINs |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | PacifiCorp West | `SGIP_PACW` | `USCA-SGIP-MOER-PACW` | `USCA-SGIP-SGRT-PACW`, `USCA-SGIP-SGFC-PACW`, `USCA-SGIP-SGHT-PACW` |
 | CAISO – San Diego Gas & Electric | `SGIP_CAISO_SDGE` | `USCA-SGIP-MOER-SDGE` | `USCA-SGIP-SGRT-SDGE`, `USCA-SGIP-SGFC-SDGE`, `USCA-SGIP-SGHT-SDGE` |
 | CAISO – Pacific Gas & Electric | `SGIP_CAISO_PGE` | `USCA-SGIP-MOER-PGE` | `USCA-SGIP-SGRT-PGE`, `USCA-SGIP-SGFC-PGE`, `USCA-SGIP-SGHT-PGE` |
@@ -101,7 +88,7 @@ For the full region list and definitions, see [sgipsignal.com/grid-regions](http
 #### RIN Metadata
 
 | Field | Value |
-|---|---|
+| --- | --- |
 | RateID | `USCA-SGIP-MOER-{REGION}` |
 | RateName | `{ba_code} Realtime GHG Emissions` (e.g. `SGIP_BANC_SMUD Realtime GHG Emissions`) |
 | RateType | `Greenhouse Gas emissions` |
@@ -110,8 +97,6 @@ For the full region list and definitions, see [sgipsignal.com/grid-regions](http
 | ValueName | `Realtime SGIP GHG Emission` |
 | Granularity | 5-minute intervals |
 | Value | Float — CO2 emissions in g per kWh |
-
----
 
 ### Request Examples
 
@@ -143,8 +128,6 @@ Authorization: Bearer <jwt>
 ```
 
 Returns 5-minute intervals between `startdate` and `enddate`, inclusive.
-
----
 
 ### Response Shape
 
@@ -200,16 +183,11 @@ Identical to every other rate signal in MIDAS — there are **no SGIP-specific f
 - `ValueName` is always `"Realtime SGIP GHG Emission"` regardless of whether the interval is historical, real-time, or forecast.
 - `DayStart` / `DayEnd` follow the same day-of-week numbering convention used by other MIDAS rate signals (1 = Monday through 7 = Sunday; 8 = Holiday).
 
----
-
 ### Error Responses
 
 | Code | Condition |
-|---|---|
+| --- | --- |
 | `400 Bad Request` | Invalid `QueryType` value or unrecognized RIN |
-
----
-
 
 ## 2. Flex Alert RIN Consolidation: `USCA-FLEX-ALRT-0000`
 
@@ -217,36 +195,28 @@ Identical to every other rate signal in MIDAS — there are **no SGIP-specific f
 
 **Related Repo:** [california-energy-commission/MIDAS](https://github.com/california-energy-commission/MIDAS) 
 
----
-
-### Summary
-
 Today, MIDAS exposes Flex Alert information through **three separate Rate Identification Numbers (RINs)** — one for real-time status, one for forecasts, and one for historical data (the historical one was never fully functional and currently returns an error). Consumers integrating Flex Alert data have had to call different RINs for different time windows and parse a custom response format that doesn't match how other MIDAS rate signals work.
 
 We're replacing the three RINs with **one unified RIN** that delivers Flex Alert status as a simple, predictable hourly signal — the same shape as electricity rates and greenhouse-gas emissions.
-
----
 
 ### Background / Previous Behavior
 
 MIDAS previously included **three separate Flex Alert RINs**:
 
 | RIN | Code Meaning | Behavior |
-|-----|-------------|----------|
+| --- | ------------ | -------- |
 | `USCA-FLEX-FXRT-0000` | **FXRT** = Flex Alert Real-Time | Checked CAISO Flex Alert status at query time; result passed directly to caller |
 | `USCA-FLEX-FXFC-0000` | **FXFC** = Flex Alert Forecasted | Checked CAISO for planned/forecasted Flex Alerts at query time; result passed directly to caller |
 | `USCA-FLEX-FXHT-0000` | **FXHT** = Flex Alert Historical | Intended to return all previously active Flex Alerts; **never fully functional — currently returns an error** |
 
 The California ISO (CAISO) maintains information on both active and planned Flex Alerts. MIDAS polled the CAISO Flex Alert webpage and persisted that data into the database. The `FXRT` and `FXFC` RINs acted as real-time pass-throughs; `FXHT` was designed to serve the full historical corpus but was never operational.
 
----
-
 ### What End Users Will See
 
 #### One RIN, two query types — same as every other MIDAS rate signal
 
 | Question the consumer is asking | API call |
-|---|---|
+| --- | --- |
 | Is a Flex Alert active right now? | `GET /api/ValueData?ID=USCA-FLEX-ALRT-0000&QueryType=realtime` |
 | What's the history of Flex Alerts over the past 90 days? | `GET /api/ValueData?ID=USCA-FLEX-ALRT-0000&QueryType=alldata` |
 
@@ -259,22 +229,18 @@ Each response contains **one row per hour**, with two fixed shapes:
 
 No gaps in the response: every hour in the requested window appears exactly once.
 
----
-
 ### Previous RINs Will Retire
 
 | Deprecated RIN | Recommended Replacement |
-|----------------|------------------------|
+| -------------- | ----------------------- |
 | `USCA-FLEX-FXRT-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=realtime` |
 | `USCA-FLEX-FXFC-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=realtime` |
 | `USCA-FLEX-FXHT-0000` | `USCA-FLEX-ALRT-0000` with `QueryType=alldata` |
 
----
-
 ### New RIN: `USCA-FLEX-ALRT-0000`
 
 | Field | Value |
-|---|---|
+| ----- | ----- |
 | RateID | `USCA-FLEX-ALRT-0000` |
 | RateName | `CAISO Flex Alert Status` |
 | RateType | `Flex Alert` |
@@ -283,8 +249,6 @@ No gaps in the response: every hour in the requested window appears exactly once
 | ValueName (active hour) | `Active Flex Alert` |
 | ValueName (inactive hour) | `No Active Flex Alert` |
 | Value | `1` (active) or `0` (no active alert) |
-
----
 
 ### Request Examples
 
@@ -305,8 +269,6 @@ Authorization: Bearer <jwt>
 ```
 
 Returns approximately **2,160 `ValueInformation` entries** (90 calendar days × 24 hours; ±1 hour on Daylight Saving Time transition days). The window ends at the same boundary as the real-time response — the end of day two days from the request date in Pacific time.
-
----
 
 ### Response Shape
 
@@ -362,16 +324,12 @@ Identical to every other rate signal in MIDAS — there are **no Flex Alert-spec
 - The response contains **no gaps**: every hour in the requested window appears exactly once.
 - `DayStart` / `DayEnd` follow the same day-of-week numbering convention used by other MIDAS rate signals (1 = Monday through 7 = Sunday; 8 = Holiday).
 
----
-
 ### Motivation
 
 - **Reduce client complexity** caused by having to choose among three RINs for a single underlying signal.
 - **Align with MIDAS 1.5 goals** — performance, reliability, and bounded payloads.
 - **Provide a consistent time-series shape** for Flex Alert data that matches all other MIDAS rate signals.
 - **Limit unbounded downloads** and improve API responsiveness by capping alldata windows at 90 days.
-
----
 
 ### Error Responses
 
