@@ -3,7 +3,7 @@
 **California Energy Commission | <midas@energy.ca.gov>**
 
 > **Release Notice — June 22, 2026**
-> MIDAS v2.0 is live as of June 22, 2026. If you are migrating from v1.0, please read the [Transition Guide](transition-guide.md) before making any API calls. The base URL for MIDAS is **`https://midasapi.energy.ca.gov`**. All test-environment URLs referenced in pre-release materials will be deactivated July 1, 2026.
+> MIDAS v2.0 is live as of June 22, 2026. If you are migrating from v1.0, please read the [Transition Guide](Transition-Guide.md) before making any API calls. The base URL for MIDAS is **`https://midasapi.energy.ca.gov`**. All test-environment URLs referenced in pre-release materials will be deactivated July 1, 2026.
 
 > [!NOTE]
 > MIDAS 1.0 documentation is preserved at the [MIDAS v1.0 Documentation](https://github.com/california-energy-commission/MIDAS/releases/tag/v1.0) on the official CEC repository.
