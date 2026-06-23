@@ -38,7 +38,7 @@ The MIDAS API and database are protected by the CEC firewall and data throttling
 
 ## What's New in v2.0
 
-See also: [Release Notes](release-notes.md) for the full changelog and [Transition Guide](transition-guide.md) for migration steps.
+See also: [Release Notes](release-notes.md) for the full changelog and [Transition Guide](Transition-Guide.md) for migration steps.
 
 ### For GET Users (Data Consumers)
 
