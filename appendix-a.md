@@ -84,19 +84,19 @@ print(ET.tostring(element, encoding='unicode'))
 
 All rates uploaded to MIDAS should be in a "streaming" structure. This is a time-series structure where every hour (or sub-hourly period) has an entry. There needs to be at least one value for every hour, if the rate changes with a frequency higher than hourly, it needs to have one entry for each period where the rate could change, even when it does not change.
 
-If the rate has more than one value in each interval each value will have the fields shown in the next paragraph. For example, a rate with asymmetric prices where the import price is different from the expost price will need to have the following fields for each hour for the import price using the unit "\$/kWh" and also the following fields for the export price with the unit "export \$/kWh". When uploading export prices, use positive values for the amount the energy user will be paid for exporting electricity.
+If the rate has more than one value in each interval each value will have the fields shown in the next paragraph. For example, a rate with asymmetric prices where the import price is different from the export price will need to have the following fields for each hour for the import price using the unit "\$/kWh" and also the following fields for the export price with the unit "export \$/kWh". When uploading export prices, use positive values for the amount the energy user will be paid for exporting electricity.
 
 Each time period (interval) contains these fields:
 
-* **DateStart** *required* This is the date in UTC when the rate interval starts.
-* **TimeStart** *required* This is the time in UTC when the rate interval starts.
-* **DateEnd** *required* This is the date in UTC when the rate interval ends.
-* **TimeEnd** *required* This is the time in UTC when the rate interval ends.
-* **DayStart** *required* Indicates the day type (1–8) in local time when the rate interval begins. Valid day types are listed in the DayType lookup table.
-* **DayEnd** *required* Indicates the day type (1–8) in local time when the rate interval ends. Valid day types are listed in the DayType lookup table.
-* **Value** *required* This is the value (usually the price) that applies to the interval.
-* **Unit** *required* This is the unit that applies to the Value (usually $/kWh) that applies to the interval. Allowable units are in the Unit lookup table.
-* **ValueName** *required* A description that applies to the interval.
+- **DateStart** *required* This is the date in UTC when the rate interval starts.
+- **TimeStart** *required* This is the time in UTC when the rate interval starts.
+- **DateEnd** *required* This is the date in UTC when the rate interval ends.
+- **TimeEnd** *required* This is the time in UTC when the rate interval ends.
+- **DayStart** *required* Indicates the day type (1–8) in local time when the rate interval begins. Valid day types are listed in the DayType lookup table.
+- **DayEnd** *required* Indicates the day type (1–8) in local time when the rate interval ends. Valid day types are listed in the DayType lookup table.
+- **Value** *required* This is the value (usually the price) that applies to the interval.
+- **Unit** *required* This is the unit that applies to the Value (usually $/kWh) that applies to the interval. Allowable units are in the Unit lookup table.
+- **ValueName** *required* A description that applies to the interval.
 
 The `DateStart` and `TimeStart`, and `DateEnd` and `TimeEnd` fields in the rate must be in UTC. Combining `DateStart` and `TimeStart` will yield a UTC datetime, as will combining `DateEnd` and `TimeEnd`. For example, for the first hour of March 1 in California (UTC-8), we would convert an interval start date of "2023-01-01" and start time of "00:00:00" to UTC, yielding a `DateStart` of "2023-01-01" and `TimeStart` of "08:00:00".
 
@@ -135,16 +135,16 @@ One day of a streaming rate would include the information Table 1. The table sho
 
 Uploaded rates must also contain rate information that makes up the header section of the XML or JSON. Many of these are optional, but including all of those applicable to the rate will substantially help users.
 
-* **RateID** *required* This is the Rate Identification Number (RIN)
-* **RateName** *required* The LSE’s name for the rate plan, consistent with the CEC’s Interval Meter Database as required by California Code of Regulations, Title 20, section 134¬4
-* **RateType** *required* The applicable rate type; must be one of those in the RateType lookup table
-* **AltRateName1** *optional* An alternative name for the rate
-* **AltRateName2** *optional* A second alternative name for the rate
-* **SignupCloseDate** *optional* The last day a customer may sign up for the rate
-* **RatePlan_Url** *optional* A valid URL that directs to the utility webpage describing the rate plan
-* **Sector** *optional* The sector that the rate applies to; must be one of those in the Sector lookup table
-* **EndUse** *optional* The end use that the rate applies to; must be one of those in the EndUse lookup table
-* **API_Url** *optional* A valid uniform resource locator (URL) that specifies the API that provides the values
+- **RateID** *required* This is the Rate Identification Number (RIN)
+- **RateName** *required* The LSE’s name for the rate plan, consistent with the CEC’s Interval Meter Database as required by California Code of Regulations, Title 20, section 134¬4
+- **RateType** *required* The applicable rate type; must be one of those in the RateType lookup table
+- **AltRateName1** *optional* An alternative name for the rate
+- **AltRateName2** *optional* A second alternative name for the rate
+- **SignupCloseDate** *optional* The last day a customer may sign up for the rate
+- **RatePlan_Url** *optional* A valid URL that directs to the utility webpage describing the rate plan
+- **Sector** *optional* The sector that the rate applies to; must be one of those in the Sector lookup table
+- **EndUse** *optional* The end use that the rate applies to; must be one of those in the EndUse lookup table
+- **API_Url** *optional* A valid uniform resource locator (URL) that specifies the API that provides the values
 
 ## Registration & Authentication
 
@@ -180,7 +180,7 @@ Authorization: Basic <base64(username:password)>
 
 The JWT token is returned in the `Token` response **header**. The response body contains metadata (`token_type`, `expires_in`). Tokens expire after **3,600 seconds**.
 
-### Step 4 — Request upload access (LSE only)
+### Step 4 — Request upload access (LSE upload access only)
 
 ```text
 POST /api/uploadaccess/request

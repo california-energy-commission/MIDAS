@@ -1,8 +1,6 @@
 # MIDAS v2.0 — Frequently Asked Questions
 
-**Last updated:** June 22, 2026 | **Contact:** midas@energy.ca.gov
-
----
+**Last updated:** June 22, 2026 | **Contact:** <midas@energy.ca.gov>
 
 ## General
 
@@ -20,9 +18,7 @@ The interactive OpenAPI documentation is available at `https://midasapi.energy.c
 
 **Q: I have a question not covered here. How do I get help?**
 
-Email the MIDAS team at **midas@energy.ca.gov**. Include your username, the endpoint you are calling, your request (redact your password and token), and the full response you received.
-
----
+Email the MIDAS team at **<midas@energy.ca.gov>**. Include your username, the endpoint you are calling, your request (redact your password and token), and the full response you received.
 
 ## GET / Data Access
 
@@ -32,7 +28,7 @@ No. As of v2.0, all public GET endpoints are accessible without a token or regis
 
 **Q: I called an old GHG RIN and got an error. What happened?**
 
-The 33 legacy SGIP GHG RINs (`USCA-SGIP-SGRT-*`, `USCA-SGIP-SGFC-*`, `USCA-SGIP-SGHT-*`) were consolidated into 11 new MOER RINs in v2.0. Use `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` or `QueryType=alldata`. 
+The 33 legacy SGIP GHG RINs (`USCA-SGIP-SGRT-{REGION}`, `USCA-SGIP-SGFC-{REGION}`, `USCA-SGIP-SGHT-{REGION}`) were consolidated into 11 new MOER RINs in v2.0. Use `USCA-SGIP-MOER-{REGION}` with `QueryType=realtime` or `QueryType=alldata`.
 
 **Q: I called the Flex Alert RIN and got an error.**
 
@@ -69,13 +65,11 @@ Both were removed in v2.0 with no replacement.
 
 **Q: How do I get data older than 2 years?**
 
-Data from 2 to 7 years old is stored in a cold storage archive and is not directly accessible via the API. MIDAS team is working to make this data available and will release it in an upcoming upgrade. Contact the MIDAS team at midas@energy.ca.gov for any questions. Data older than 7 years can also be requested from CEC directly.
+Data from 2 to 7 years old is stored in a cold storage archive and is not directly accessible via the API. MIDAS team is working to make this data available and will release it in an upcoming upgrade. Contact the MIDAS team at <midas@energy.ca.gov> for any questions. Data older than 7 years can also be requested from CEC directly.
 
 **Q: My token was valid for 10 minutes before. Why does it say `expires_in: 3600` now?**
 
 Token lifetime has been extended to 3,600 seconds (1 hour) in v2.0. This is correct. Update your token refresh logic if you were refreshing every 9 minutes.
-
----
 
 ## POST / Uploading Data (LSE Users)
 
@@ -85,7 +79,7 @@ Yes, all existing LSE upload users must re-register. The identity system has bee
 
 **Q: My upload returned HTTP 202 instead of 200. Is that an error?**
 
-No. `HTTP 202 Accepted` is the correct success response for uploads in v2.0. It means your file passed initial validation and has been queued for processing. The `jobID` in the response body is your tracking identifier for final validation results.
+No. `HTTP 202 Accepted` is the correct success response for uploads in v2.0. It means your file passed initial validation and has been queued for processing. The `jobID` in the response body is your tracking identifier for final validation results. You can check the status of your upload using the new `jobs` endpoint.
 
 **Q: How long should I wait before polling the job status?**
 
@@ -93,7 +87,7 @@ Most uploads complete validation within 10–30 seconds. A reasonable polling st
 
 **Q: My job is stuck in `PROCESSING` for a long time. What should I do?**
 
-If a job has not reached `COMPLETE` or `VALIDATION_FAILED` within 5 minutes, contact midas@energy.ca.gov with your `jobID` and the time you submitted the upload.
+If a job has not reached `COMPLETE` or `VALIDATION_FAILED` within 5 minutes, contact <midas@energy.ca.gov> with your `jobID` and the time you submitted the upload.
 
 **Q: What does `VALIDATION_FAILED` mean? Is my data lost?**
 
@@ -113,7 +107,7 @@ Both are accepted. The API converts XML to JSON internally. The `uploadFormat` f
 
 **Q: My upload has fewer values for one unit than the others. What should I do?**
 
-Fill missing entries with zeros to ensure all units in the upload have the same number of data points. MIDAS requires cross-unit consistency within a single upload payload.
+Fill missing entries with appropriate values to ensure all units in the upload have the same number of data points. MIDAS requires cross-unit consistency within a single upload payload.
 
 **Q: Can my account now have multiple distribution or energy codes?**
 
@@ -121,7 +115,7 @@ Yes. A single account can hold upload authorization for multiple distribution co
 
 **Q: How long does upload access approval take?**
 
-CEC reviews requests within 2 business days. If you do not receive confirmation within that window, email midas@energy.ca.gov.
+CEC reviews requests within 2 business days. If you do not receive confirmation within that window, email <midas@energy.ca.gov>.
 
 **Q: I uploaded past-dated data and got a warning. Was my upload rejected?**
 
@@ -134,9 +128,6 @@ No. The `DATA_GAP` warning is also informational. It indicates that there is a g
 **Q: How long are job records retained?**
 
 24 hours from the time of upload creation, after which records are automatically deleted from DynamoDB using TTL. Store the `jobID` persistently if you need it for audit or reconciliation purposes.
-
----
-
 
 ## System and Reliability
 

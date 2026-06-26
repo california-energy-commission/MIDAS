@@ -1,4 +1,4 @@
-# Watttime's SGIP GHG and CAISO's FlexAlert Signals RIN Mapping
+# Watttime's SGIP GHG and CAISO's FlexAlert Signals in MIDAS
 
 ## Table of Contents
 

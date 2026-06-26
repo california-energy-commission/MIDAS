@@ -6,7 +6,7 @@
 > MIDAS v2.0 is live as of June 22, 2026. If you are migrating from v1.0, please read the [Transition Guide](Transition-Guide.md) before making any API calls. The base URL for MIDAS is **`https://midasapi.energy.ca.gov`**. All test-environment URLs referenced in pre-release materials will be deactivated July 1, 2026.
 
 > [!NOTE]
-> MIDAS 1.0 documentation is preserved at the [MIDAS v1.0 Documentation](https://github.com/california-energy-commission/MIDAS/releases/tag/v1.0) on the official CEC repository.
+> MIDAS 1.0 documentation is preserved here [MIDAS v1.0 Documentation](https://github.com/california-energy-commission/MIDAS/releases/tag/v1.0).
 
 ## Introduction
 
@@ -22,7 +22,7 @@ MIDAS was developed to support the CEC's [Load Management Standards](https://www
 
 | User Type | What They Do |
 | --------- | ------------ |
-| **Read-only users** | Query rates, GHG signals, and Flex Alert data. No registration required as of v2.0. |
+| **Read-only users** | Query rates, GHG signals, and Flex Alerts. No registration required. |
 | **LSE uploaders** | Utilities, CCAs and other organizations that POST rate data. Must register, verify email, and request upload access from MIDAS team through the new access-request API endpoint. |
 | **Integrators / automation providers** | Developers building load management systems, OpenADR clients, or analytics platforms on top of MIDAS data. |
 
@@ -85,7 +85,7 @@ To fulfill the requirements of the California's [load management standards](http
 MIDAS provides greenhouse gas (GHG) emissions signals for all eleven WattTime SGIP grid regions in California through region‑specific RINs following the pattern USCA‑SGIP‑MOER‑XXXX, where the final four characters identify the region. These RINs deliver 5‑minute marginal operating emissions rates sourced from the [WattTime.org SGIP API](https://sgipsignal.com), which MIDAS retrieves and stores before serving through the API. Each RIN returns a full time series in grams of CO₂ per kilowatt-hour (g/kWh CO₂) and follows the same ValueData and HistoricalData structure as all other MIDAS rate signals. For a list of the regions and region abbreviations please see WattTime’s SGIP webpage at: <https://sgipsignal.com/grid-regions>.
 
 > [!NOTE]
-> Due to GHG RIN changes from MIDAS 1.0 to 2.0, historical GHG data prior to June 2026 was not migrated and is no longer available in MIDAS. All historical SGIP data is available in CSV format from <https://content.sgipsignal.com/download-data/>
+> Due to GHG RIN simplification from MIDAS 1.0 to 2.0, historical GHG data prior to June 2026 was not migrated and is no longer available in MIDAS. All historical SGIP data is maintained by WattTime, who make it available in CSV format from <https://content.sgipsignal.com/download-data/>
 
 See [Appendix F](appendix-f.md) for the full GHG emissions RIN mapping and complete list of active RINs.
 

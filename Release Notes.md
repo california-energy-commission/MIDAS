@@ -8,13 +8,9 @@
 
 **Contact:** <midas@energy.ca.gov>
 
----
-
 ## Overview
 
-MIDAS v2.0 is a major upgrade to the Market Informed Demand Automation Server. This release delivers substantial improvements to performance and reliability, simplifies data access for GET users, introduces programmatic upload tracking, and consolidates GHG and Flex Alert signals into streamlined RINs. LSE uploaders must re-register and request access under the new workflow before uploading after June 22, 2026.
-
----
+MIDAS v2.0 is a major upgrade to the Market Informed Demand Automation Server. This release delivers substantial improvements to performance and reliability, simplifies data access for GET users, introduces programmatic upload tracking, and consolidates GHG and Flex Alert signals into streamlined RINs. LSEs that upload to MIDAS must re-register and request access under the new workflow before uploading after June 22, 2026.
 
 ## Breaking Changes
 
@@ -79,8 +75,6 @@ The following endpoints are removed with no replacement:
 - `GET /api/Holiday` (`Holiday`)
 - `TimeZone` lookup table (via `GET /api/valuedata?LookupTable=TimeZone`)
 
----
-
 ## New Features
 
 ### NF-1 — Jobs Endpoint for Upload Tracking
@@ -100,7 +94,7 @@ LSEs can now request upload authorization directly through the API:
 
 - `POST /api/uploadaccess/request` — Submits a request for upload access for a specific energy/distribution code pair.
 
-A CEC admin approves requests via `POST /admin/approvelseaccess`.  
+A CEC admin approves requests via `POST /admin/approvelseaccess`.
 
 Note: Accounts can hold multiple energy codes and distribution codes simultaneously.
 
@@ -124,8 +118,6 @@ New programmatic flows for account maintenance:
 - `POST /api/forgotpassword` — Initiates password reset via email token.
 - `POST /api/confirmpasswordreset` — Confirms reset with a one-time token.
 - `POST /api/resendverification` — Resends the email verification code.
-
----
 
 ## Improvements
 
@@ -163,8 +155,6 @@ Uploads are validated against the interval assigned to a RIN at first upload. Di
 
 This upgrade returns better human readable detailed messages for users when an error occurs.
 
----
-
 ## Deprecations
 
 The following are deprecated as of v2.0 and will be removed in a future version.
@@ -175,8 +165,6 @@ The following are deprecated as of v2.0 and will be removed in a future version.
 - `USCA-FLEX-FXRT-0000`
 - `USCA-FLEX-FXFC-0000`
 - `USCA-FLEX-FXHT-0000`
-
----
 
 ## Support
 

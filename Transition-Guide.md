@@ -1,12 +1,10 @@
 # MIDAS v1.0 → v2.0 Transition Guide
 
-**Applies to:** All existing MIDAS users migrating from v1.0 to v2.0 
+**Applies to:** All existing MIDAS users
 
-**Release Date:** June 22, 2026 
+**Release Date:** June 22, 2026
 
-**Contact:** midas@energy.ca.gov 
-
----
+**Contact:** <midas@energy.ca.gov>
 
 ## Before You Begin
 
@@ -14,32 +12,9 @@ This guide walks through every change that requires action before June 22, 2026.
 
 Not sure what role applies to you? If you only query MIDAS data, you are a GET user. If you submit rate data on behalf of a utility or CCA, you are a POST user. Some teams are both.
 
----
-
-## Table of Contents
-
-1. [Changes for GET Users (Data Consumers)](#part-1--changes-for-get-users-data-consumers)
-   - [Step 1.1 — Token is now optional for GET requests](#step-11--token-is-now-optional-for-get-requests)
-   - [Step 1.2 — Update GHG RINs](#step-12--update-ghg-rins)
-   - [Step 1.3 — Update GHG unit handling (kg → g)](#step-13--update-ghg-unit-handling-kg--g)
-   - [Step 1.4 — Update Flex Alert RINs](#step-14--update-flex-alert-rins)
-   - [Step 1.5 — Update RINList response parsing](#step-15--update-rinlist-response-parsing)
-   - [Step 1.6 — Query window changes](#step-16--query-window-changes)
-   - [Step 1.7 — Removed endpoints](#step-17--removed-endpoints)
-     
-2. [Changes for POST Users (LSE Uploaders)](#part-2--changes-for-post-users-lse-uploaders)
-   - [Step 2.1 — Re-register](#step-21--re-register)
-   - [Step 2.2 — Request upload access](#step-22--request-upload-access)
-   - [Step 2.3 — Handle the new upload response](#step-23--handle-the-new-upload-response)
-   - [Step 2.4 — Poll the Jobs endpoint](#step-24--poll-the-jobs-endpoint)
-   - [Step 2.5 — Update token expiry logic](#step-25--update-token-expiry-logic)
-   - [Step 2.6 — Validate your upload interval consistency](#step-26--validate-your-upload-interval-consistency)
-  
----
-
 ## Part 1 — Changes for GET Users (Data Consumers)
 
-### Checklist
+### Download User Checklist
 
 - [ ] Remove token calls or authorization for public GET requests (no registration or account needed to access MIDAS data)
 - [ ] Update the `USCA-SGIP-SGRT/SGFC/SGHT` RINs to `USCA-SGIP-MOER-{REGION}`
@@ -49,21 +24,17 @@ Not sure what role applies to you? If you only query MIDAS data, you are a GET u
 - [ ] Update `alldata` integrations if you depend on specific window size (now 90 days)
 - [ ] Remove any calls to `HistoricalRINList`, `Holiday`, or `TimeZone` endpoints/lookup tables
 
----
-
 ### Step 1.1 — Token is now optional for GET requests
 
 In v2.0, the following endpoints are **publicly accessible without a token or authorization**:
 
-```
+```text
 GET /api/valuedata?SignalType=N
 GET /api/valuedata?ID={RIN}&QueryType={realtime|alldata}
 GET /api/historicaldata/{rate_id}
 ```
 
 You may remove the `Authorization: Bearer` header from those calls. Existing code that sends a valid token will continue to work — no forced change here, just simplification available.
-
----
 
 ### Step 1.2 — Update GHG RINs
 
@@ -72,7 +43,7 @@ All `SGRT`, `SGFC`, and `SGHT` RINs are gone. Calling them returns `410 Gone`. R
 **Mapping — replace old RIN + call pattern with new:**
 
 | Old RIN (v1.0) | v2.0 Replacement |
-|---|---|
+| --- | --- |
 | `USCA-SGIP-SGRT-PACW` | `GET /api/valuedata?ID=USCA-SGIP-MOER-PACW&QueryType=realtime` |
 | `USCA-SGIP-SGFC-PACW` | `GET /api/valuedata?ID=USCA-SGIP-MOER-PACW&QueryType=realtime` |
 | `USCA-SGIP-SGHT-PACW` | `GET /api/valuedata?ID=USCA-SGIP-MOER-PACW&QueryType=alldata` |
@@ -85,8 +56,6 @@ All `SGRT`, `SGFC`, and `SGHT` RINs are gone. Calling them returns `410 Gone`. R
 | *(repeat for SCE, SMUD, LADWP, TID, IID, NVENERGY, WALC, P2)* | *(same pattern)* |
 
 Full mapping table in [Appendix A](appendix-a.md).
-
----
 
 ### Step 1.3 — Update GHG unit handling (kg → g)
 
@@ -105,18 +74,17 @@ new_threshold_g = old_threshold_kg * 1000  # = 300.0
 ```
 
 **Where to check:**
+
 - Comparison thresholds and trigger logic
 - Chart Y-axis scales and labels
 - Stored values in databases seeded from v1.0 data
 - Unit labels shown to end users
 - Alert configurations
 
----
-
 ### Step 1.4 — Update Flex Alert RINs
 
 | Old RIN (v1.0) | v2.0 Replacement |
-|---|---|
+| --- | --- |
 | `USCA-FLEX-FXRT-0000` | `USCA-FLEX-ALRT-0000` + `QueryType=realtime` |
 | `USCA-FLEX-FXFC-0000` | `USCA-FLEX-ALRT-0000` + `QueryType=realtime` |
 | `USCA-FLEX-FXHT-0000` | `USCA-FLEX-ALRT-0000` + `QueryType=alldata` |
@@ -124,6 +92,7 @@ new_threshold_g = old_threshold_kg * 1000  # = 300.0
 The new RIN returns a clean hourly time series: `Value=1` (Flex Alert active), `Value=0` (not active). No gap-filling needed — every hour in the window is present.
 
 **Before (v1.0) — three calls:**
+
 ```python
 # Had to call FXRT + FXFC separately and combine manually
 rt = requests.get(url, params={"ID": "USCA-FLEX-FXRT-0000", "QueryType": "realtime"})
@@ -131,14 +100,13 @@ fc = requests.get(url, params={"ID": "USCA-FLEX-FXFC-0000", "QueryType": "realti
 ```
 
 **After (v2.0) — one call:**
+
 ```python
 response = requests.get(
     f"{BASE_URL}/api/valuedata",
     params={"ID": "USCA-FLEX-ALRT-0000", "QueryType": "realtime"}
 )
 ```
-
----
 
 ### Step 1.5 — Update RINList response parsing
 
@@ -156,35 +124,27 @@ for rin in data.get("Rates", []):
     print(rin["RateID"])
 ```
 
-The key name reflects the signal type: `"Rates"` for electricity rates, `"GHGEmissions"` for GHG signals, `"FlexAlerts"` for Flex Alert signals, and `"All"` when `SignalType=0`.
-
----
-
 ### Step 1.6 — Query window changes
 
 | Query | v1.0 | v2.0 |
-|-------|------|------|
+| --- | --- | --- |
 | `realtime` | Single current value (GHG) or pass-through (Flex Alert) | 72-hour window from midnight Pacific on request date |
 | `alldata` | No defined cap | 90-day window ending at 23:59:59 Pacific on Day+2 |
 
-If your application depends on a specific window size, update your downstream logic. For data older than 90 days, use `GET /api/historicaldata/{rate_id}` with explicit `startdate`/`enddate` parameters. The historicaldata query is limited to request 6 months of data at a time.
-
----
+If your application depends on a specific window size, update your downstream logic. For data older than 90 days, use `GET /api/historicaldata/{rate_id}` with explicit `startdate`/`enddate` parameters. The historicaldata endpoint is limited to 6 months of data in a single query. If you need more than 6 months, you will need to call historicaldata multiple times.
 
 ### Step 1.7 — Removed endpoints
 
-Remove any calls to the following — they no longer exist in v2.0:
+Remove any calls to the following — they no longer exist in v2.0. There is no replacement for these since they were unnecessary. If queried, they will return HTTP 400 or 404 codes.
 
-- `GET /api/historicallist` (HistoricalRINList) — no replacement
-- - `GET /api/Holiday` (Holiday) — no replacement
-- `GET /api/valuedata?LookupTable=Holiday` — no replacement
-- `GET /api/valuedata?LookupTable=TimeZone` — no replacement
-
----
+- `GET /api/historicallist` (HistoricalRINList)
+- `GET /api/Holiday` (Holiday)
+- `GET /api/valuedata?LookupTable=Holiday`
+- `GET /api/valuedata?LookupTable=TimeZone`
 
 ## Part 2 — Changes for POST Users (LSE Uploaders)
 
-### Checklist
+### Upload User Checklist
 
 - [ ] Re-register account on the new system
 - [ ] Verify email address
@@ -196,13 +156,11 @@ Remove any calls to the following — they no longer exist in v2.0:
 - [ ] Update token refresh logic (now 3,600s expiry)
 - [ ] Verify interval consistency and all validations in upload payloads
 
----
-
 ### Step 2.1 — Re-register
 
 Your v1.0 credentials will not work for uploads on the v2.0 system. You must re-register.
 
-```
+```text
 POST /api/registration
 ```
 
@@ -210,25 +168,21 @@ All fields Base64-encoded: `fullname`, `username`, `password`, `emailaddress`, `
 
 After submitting, check your email and click the verification link. If the email doesn't arrive within a few minutes, use:
 
-```
+```text
 POST /api/resendverification?username=<your_username>
 ```
-
----
 
 ### Step 2.2 — Request upload access
 
 After verifying your email and obtaining a token, submit an upload access request for each distribution/energy code combination you need:
 
-```
+```text
 POST /api/uploadaccess/request
 Authorization: Bearer <token>
 Body: { "energy_code": "XX", "distribution_code": "XX" }
 ```
 
-You will receive an email when CEC approves your request. **You cannot upload until access is approved.** Contact midas@energy.ca.gov if you do not receive approval within 2 business days.
-
----
+You will receive an email when CEC approves your request. **You cannot upload until access is approved.** Contact <midas@energy.ca.gov> if you do not receive approval within 2 business days.
 
 ### Step 2.3 — Handle the new upload response
 
@@ -251,8 +205,6 @@ if response.status_code == 202:
     status_url = result["statusUrl"]  # for polling
     print(f"Accepted. Job: {job_id}")
 ```
-
----
 
 ### Step 2.4 — Poll the Jobs endpoint
 
@@ -291,8 +243,6 @@ else:
 
 **Important:** Jobs are retained for 1 week. If you do not poll within that window, the job record is deleted. Store the `jobID` persistently if you need it for reconciliation.
 
----
-
 ### Step 2.5 — Update token expiry logic
 
 Tokens now expire after **3,600 seconds** (1 hour). If your code refreshed the token every 9 minutes to stay within the old 600-second window, you can now safely extend that to ~55–58 minutes.
@@ -314,8 +264,6 @@ def get_valid_token():
     return token
 ```
 
----
-
 ### Step 2.6 — Validate your upload interval consistency
 
 Before uploading, ensure:
@@ -334,36 +282,22 @@ def validate_upload_consistency(rate_data: list) -> bool:
     return True
 ```
 
----
-
 ## Part 3 — Base URL
 
-All calls must go to:
-
-```
-https://midasapi.energy.ca.gov
-```
+All calls must go to: **`https://midasapi.energy.ca.gov`**
 
 Update any hardcoded URLs or environment variables in your deployment configuration.
 
----
+## Go-live
 
-## Timeline Summary
-
-| Date | Event |
-|------|-------|
-| Before June 22, 2026 | Update GET integrations (RINs, unit handling, response parsing) |
-| **On or Before June 22, 2026** | **Complete re-registration and upload access request** |
-| **June 22, 2026** | **MIDAS v2.0 goes live.** |
-
----
+MIDAS v2.0 went live on June 22, 2026! If you are an uploader who has not yet registered, please follow the instructions above or in [Appendix A](appendix-a.md).
 
 ## Getting Help
 
 If you encounter issues during migration:
 
-- Email: **midas@energy.ca.gov**
-- Include your username, the endpoint you are calling, the full request (redact your password/token), and the response you received.
+- Email: **<midas@energy.ca.gov>**
+- Include your username, the endpoint you are calling, the full request (redact your password/token), the response you received, and any further detail that may help diagnose the issue.
 
 ---
 
