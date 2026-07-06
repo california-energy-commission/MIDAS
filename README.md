@@ -233,6 +233,15 @@ These endpoints require no authentication and are intended for monitoring.
 
 MIDAS is protected by CEC firewall rules and request throttling. Exceeding the rate limit returns HTTP `429 Too Many Requests`. If you receive `429` errors regularly, contact <midas@energy.ca.gov> to discuss your use case.
 
+## External Resources
+
+The following external resources are provided as optional references for users.
+These resources are created and maintained by third parties, and the California Energy Commission has no control over the content, accuracy, or availability of these sites. Inclusion of these links does not constitute endorsement.
+
+- [Interactive MIDAS Web tool](https://midasinterface.com/)
+- [Python Client Library for MIDAS](https://github.com/grid-coordination/python-midas)
+- [MIDAS API Specs](https://github.com/grid-coordination/midas-api-specs)
+
 ## Appendices
 
 ### Appendix A Uploading to MIDAS
