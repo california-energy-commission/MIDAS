@@ -234,6 +234,7 @@ On success, the API returns **HTTP 202 Accepted** (not 200) with a `jobID`:
 - Missing values within a unit must be filled with zeros to maintain alignment.
 - Uploading past-dated data is accepted but triggers a warning notification.
 - A gap between the latest data in MIDAS and the earliest timestamp in your upload triggers a gap warning.
+- MIDAS uses an upsert model: incoming datapoints are compared against existing records, inserting new intervals and updating any that already exist.
 
 ## Upload Rate Information
 
