@@ -16,6 +16,9 @@ MIDAS is designed to provide energy users with the electricity price information
 
 MIDAS is accessible through a public API at <https://midasapi.energy.ca.gov> in two standard machine-readable formats: JavaScript Object Notation (JSON), and extensible markup language (XML). MIDAS is publicly accessible, allowing all registered users to query and download information by interacting with the MIDAS API. CEC strongly encourages load serving entity (LSE) users have programming skills and software to effectively upload and maintain rate information stored in the database. Registration is a simple process available through the API. Non-LSE users should be able to retrieve information stored in MIDAS without extensive programming skills. Retrieving MIDAS-hosted data can be easily done through the code examples provided or through a user’s own code. For instructions on accessing the MIDAS database, see [GET Requests — Retrieving Data](get-requests--retrieving-data) and/or [Python Examples - Appendix g](appendix-g.md).
 
+> [!IMPORTANT]
+> Please do not include an explicit `:443` port in the Host header when calling the MIDAS API (e.g., use `midasapi.energy.ca.gov`, not `midasapi.energy.ca.gov:443`). AWS App Runner's proxy does not accept the explicit port on the Host header and will return an HTTP 404 if it's present.
+
 MIDAS was developed to support the CEC's [Load Management Standards](https://www.energy.ca.gov/programs-and-topics/topics/load-flexibility/load-management-standards). The full text of the standards is available from [Westlaw](https://govt.westlaw.com/calregs/Browse/Home/California/CaliforniaCodeofRegulations?guid=ID6B950105CCE11EC9220000D3A7C4BC3).
 
 ### Who Uses MIDAS?
